@@ -54,16 +54,30 @@ GoRouter appRouter(AppRouterRef ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppRoutes.splash,
+    initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final isAuthenticated = authState.valueOrNull != null;
       final currentPath = state.uri.path;
+      final isOnSplashOrOnboarding =
+          currentPath == AppRoutes.splash || currentPath == AppRoutes.onboarding;
 
-      // Skip redirect for splash and onboarding
-      if (currentPath == AppRoutes.splash ||
-          currentPath == AppRoutes.onboarding) {
-        return null;
+      // Treat splash/onboarding as startup placeholders and send users to
+      // the real landing page immediately.
+      if (isOnSplashOrOnboarding) {
+        if (!isAuthenticated) {
+          return AppRoutes.auth;
+        }
+
+        final user = authState.valueOrNull;
+        final isProfileComplete =
+            user != null && user.fullName != null && user.fullName!.isNotEmpty;
+
+        if (!isProfileComplete) {
+          return AppRoutes.profileSetup;
+        }
+
+        return AppRoutes.home;
       }
 
       // Auth routes

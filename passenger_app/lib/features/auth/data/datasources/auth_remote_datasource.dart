@@ -1,6 +1,6 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
-import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/exceptions.dart' as app_exceptions;
 import '../../../../core/supabase/supabase_service.dart';
 import '../models/user_model.dart';
 
@@ -25,10 +25,13 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         phone: phone,
         shouldCreateUser: true,
       );
-    } on AuthException catch (e) {
-      throw AuthException(message: e.message, code: e.statusCode);
+    } on supabase.AuthException catch (e) {
+      throw app_exceptions.AuthException(
+        message: e.message,
+        code: e.statusCode,
+      );
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw app_exceptions.ServerException(message: e.toString());
     }
   }
 
@@ -41,26 +44,29 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final response = await _supabase.client.auth.verifyOTP(
         phone: phone,
         token: token,
-        type: OtpType.sms,
+        type: supabase.OtpType.sms,
       );
 
       final supabaseUser = response.user;
       if (supabaseUser == null) {
-        throw const AuthException(message: 'Verification failed');
+        throw const app_exceptions.AuthException(message: 'Verification failed');
       }
 
       // Fetch or create profile
       final profile = await _getOrCreateProfile(supabaseUser);
       return profile;
-    } on AuthException catch (e) {
-      throw AuthException(message: e.message, code: e.statusCode);
+    } on supabase.AuthException catch (e) {
+      throw app_exceptions.AuthException(
+        message: e.message,
+        code: e.statusCode,
+      );
     } catch (e) {
-      if (e is AuthException) rethrow;
-      throw ServerException(message: e.toString());
+      if (e is app_exceptions.AuthException) rethrow;
+      throw app_exceptions.ServerException(message: e.toString());
     }
   }
 
-  Future<UserModel> _getOrCreateProfile(User supabaseUser) async {
+  Future<UserModel> _getOrCreateProfile(supabase.User supabaseUser) async {
     try {
       // Try to get existing profile
       final existing = await _supabase.client
@@ -92,8 +98,8 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
           .single();
 
       return UserModel.fromJson(created);
-    } on PostgrestException catch (e) {
-      throw ServerException(message: e.message, code: e.code);
+    } on supabase.PostgrestException catch (e) {
+      throw app_exceptions.ServerException(message: e.message, code: e.code);
     }
   }
 
@@ -114,10 +120,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   Future<void> signOut() async {
     try {
       await _supabase.client.auth.signOut();
-    } on AuthException catch (e) {
-      throw AuthException(message: e.message);
+    } on supabase.AuthException catch (e) {
+      throw app_exceptions.AuthException(message: e.message);
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw app_exceptions.ServerException(message: e.toString());
     }
   }
 
@@ -135,10 +141,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       if (profile == null) return null;
       return UserModel.fromJson(profile);
-    } on PostgrestException catch (e) {
-      throw ServerException(message: e.message, code: e.code);
+    } on supabase.PostgrestException catch (e) {
+      throw app_exceptions.ServerException(message: e.message, code: e.code);
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw app_exceptions.ServerException(message: e.toString());
     }
   }
 
@@ -152,10 +158,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
           .select()
           .single();
       return UserModel.fromJson(updated);
-    } on PostgrestException catch (e) {
-      throw ServerException(message: e.message, code: e.code);
+    } on supabase.PostgrestException catch (e) {
+      throw app_exceptions.ServerException(message: e.message, code: e.code);
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw app_exceptions.ServerException(message: e.toString());
     }
   }
 

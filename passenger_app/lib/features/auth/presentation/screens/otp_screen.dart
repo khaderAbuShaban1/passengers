@@ -202,7 +202,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
-                        direction: TextDirection.ltr,
                       ),
                     ),
                   ],
