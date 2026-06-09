@@ -167,9 +167,16 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
   @override
   Stream<UserModel?> streamAuthState() {
-    return _supabase.authStateStream.asyncMap((event) async {
-      if (event.session?.user == null) return null;
-      return getCurrentUser();
-    });
+    return (() async* {
+      yield await getCurrentUser();
+
+      await for (final event in _supabase.authStateStream) {
+        if (event.session?.user == null) {
+          yield null;
+          continue;
+        }
+        yield await getCurrentUser();
+      }
+    })();
   }
 }

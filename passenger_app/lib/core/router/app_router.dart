@@ -57,6 +57,8 @@ GoRouter appRouter(AppRouterRef ref) {
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     redirect: (context, state) {
+      if (authState.isLoading) return null;
+
       final isAuthenticated = authState.valueOrNull != null;
       final currentPath = state.uri.path;
       final isOnSplashOrOnboarding =

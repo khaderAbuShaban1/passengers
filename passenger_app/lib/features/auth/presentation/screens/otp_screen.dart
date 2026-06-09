@@ -10,6 +10,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/supabase/supabase_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../providers/auth_provider.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phone;
@@ -83,6 +84,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         'role': 'passenger',
         'is_active': true,
       }).eq('id', user.id);
+
+      ref.invalidate(authStateProvider);
+      ref.invalidate(currentUserProvider);
 
       if (mounted) context.go(AppRoutes.home);
     } on supabase.AuthException catch (e) {
