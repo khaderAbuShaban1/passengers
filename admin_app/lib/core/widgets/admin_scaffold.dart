@@ -50,32 +50,6 @@ class _NavItem {
 
 const _navItems = [
   _NavItem(
-    label: 'لوحة التحكم',
-    icon: Icons.dashboard_outlined,
-    activeIcon: Icons.dashboard,
-    route: '/dashboard',
-  ),
-  _NavItem(
-    label: 'السائقون',
-    icon: Icons.people_outline,
-    activeIcon: Icons.people,
-    route: '/dashboard/drivers',
-    badgeKey: 'pending_drivers',
-  ),
-  _NavItem(
-    label: 'الرحلات',
-    icon: Icons.directions_car_outlined,
-    activeIcon: Icons.directions_car,
-    route: '/dashboard/rides',
-  ),
-  _NavItem(
-    label: 'الاشتراكات',
-    icon: Icons.card_membership_outlined,
-    activeIcon: Icons.card_membership,
-    route: '/dashboard/subscriptions',
-    badgeKey: 'pending_transfers',
-  ),
-  _NavItem(
     label: 'المدفوعات',
     icon: Icons.payment_outlined,
     activeIcon: Icons.payment,
@@ -117,18 +91,6 @@ const _navItems = [
     icon: Icons.settings_outlined,
     activeIcon: Icons.settings,
     route: '/dashboard/settings',
-  ),
-  _NavItem(
-    label: 'الكول سنتر',
-    icon: Icons.headset_mic_outlined,
-    activeIcon: Icons.headset_mic,
-    route: '/dashboard/call-center',
-  ),
-  _NavItem(
-    label: 'المساعد الصوتي',
-    icon: Icons.record_voice_over_outlined,
-    activeIcon: Icons.record_voice_over,
-    route: '/dashboard/ai-call-logs',
   ),
 ];
 
@@ -240,8 +202,7 @@ class _AdminAvatar extends StatelessWidget {
               children: [
                 Icon(Icons.logout, size: 18, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('تسجيل الخروج',
-                    style: TextStyle(color: AppColors.error)),
+                Text('تسجيل الخروج', style: TextStyle(color: AppColors.error)),
               ],
             ),
           ),
@@ -346,9 +307,8 @@ class _Sidebar extends ConsumerWidget {
                 final isSelected = currentPath == item.route ||
                     (item.route != '/dashboard' &&
                         currentPath.startsWith(item.route));
-                final badgeCount = item.badgeKey.isNotEmpty
-                    ? (counts[item.badgeKey] ?? 0)
-                    : 0;
+                final badgeCount =
+                    item.badgeKey.isNotEmpty ? (counts[item.badgeKey] ?? 0) : 0;
 
                 return _SidebarItem(
                   item: item,
@@ -405,16 +365,16 @@ class _SidebarItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
-              mainAxisAlignment: expanded
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center,
+              mainAxisAlignment:
+                  expanded ? MainAxisAlignment.start : MainAxisAlignment.center,
               children: [
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
                     Icon(
                       isSelected ? item.activeIcon : item.icon,
-                      color: isSelected ? Colors.white : const Color(0xFF9E9E9E),
+                      color:
+                          isSelected ? Colors.white : const Color(0xFF9E9E9E),
                       size: 22,
                     ),
                     if (badgeCount > 0)
@@ -445,13 +405,11 @@ class _SidebarItem extends StatelessWidget {
                     child: Text(
                       item.label,
                       style: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : const Color(0xFF9E9E9E),
+                        color:
+                            isSelected ? Colors.white : const Color(0xFF9E9E9E),
                         fontSize: 14,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -579,4 +537,3 @@ class _MobileLayoutState extends State<_MobileLayout> {
     );
   }
 }
-

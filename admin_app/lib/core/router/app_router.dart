@@ -8,7 +8,6 @@ import '../../features/dashboard/presentation/pages/dashboard_overview_page.dart
 import '../../features/drivers/presentation/pages/drivers_page.dart';
 import '../../features/drivers/presentation/pages/driver_detail_page.dart';
 import '../../features/rides/presentation/pages/rides_page.dart';
-import '../../features/subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../features/payments/presentation/pages/payments_page.dart';
 import '../../features/complaints/presentation/pages/complaints_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
@@ -16,8 +15,6 @@ import '../../features/competitions/presentation/pages/competitions_page.dart';
 import '../../features/referrals/presentation/pages/referrals_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
-import '../../features/call_center/presentation/pages/call_center_page.dart';
-import '../../features/ai_call_center/presentation/pages/ai_call_logs_page.dart';
 import '../widgets/admin_scaffold.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -81,10 +78,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const RidesPage(),
               ),
               GoRoute(
-                path: 'subscriptions',
-                builder: (context, state) => const SubscriptionsPage(),
-              ),
-              GoRoute(
                 path: 'payments',
                 builder: (context, state) => const PaymentsPage(),
               ),
@@ -111,14 +104,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'settings',
                 builder: (context, state) => const SettingsPage(),
-              ),
-              GoRoute(
-                path: 'call-center',
-                builder: (context, state) => const CallCenterPage(),
-              ),
-              GoRoute(
-                path: 'ai-call-logs',
-                builder: (context, state) => const AiCallLogsPage(),
               ),
             ],
           ),

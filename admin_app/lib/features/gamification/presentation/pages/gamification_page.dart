@@ -147,8 +147,8 @@ class _LevelsTab extends ConsumerWidget {
             rows: levels.map((level) {
               Color? badgeColor;
               try {
-                final hex = (level['badge_color'] as String? ?? '')
-                    .replaceAll('#', '');
+                final hex =
+                    (level['badge_color'] as String? ?? '').replaceAll('#', '');
                 if (hex.length == 6) {
                   badgeColor = Color(int.parse('FF$hex', radix: 16));
                 }
@@ -182,8 +182,8 @@ class _LevelsTab extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: badgeColor,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.grey.shade300),
+                                  border:
+                                      Border.all(color: Colors.grey.shade300),
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -250,8 +250,7 @@ class _EditLevelDialogState extends State<_EditLevelDialog> {
     super.initState();
     _nameCtrl =
         TextEditingController(text: widget.level['name_ar'] as String? ?? '');
-    _minXpCtrl =
-        TextEditingController(text: '${widget.level['min_xp'] ?? ''}');
+    _minXpCtrl = TextEditingController(text: '${widget.level['min_xp'] ?? ''}');
     _colorCtrl = TextEditingController(
         text: widget.level['badge_color'] as String? ?? '');
     _benefitsCtrl = TextEditingController(
@@ -300,8 +299,7 @@ class _EditLevelDialogState extends State<_EditLevelDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -330,8 +328,7 @@ class _EditLevelDialogState extends State<_EditLevelDialog> {
                 controller: _minXpCtrl,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                    labelText: 'الحد الأدنى XP',
-                    border: OutlineInputBorder()),
+                    labelText: 'الحد الأدنى XP', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -345,8 +342,7 @@ class _EditLevelDialogState extends State<_EditLevelDialog> {
                 controller: _benefitsCtrl,
                 maxLines: 4,
                 decoration: const InputDecoration(
-                    labelText: 'المزايا (JSON)',
-                    border: OutlineInputBorder()),
+                    labelText: 'المزايا (JSON)', border: OutlineInputBorder()),
               ),
             ],
           ),
@@ -446,8 +442,7 @@ class _PointRulesTabState extends ConsumerState<_PointRulesTab> {
                         ),
                         DataCell(
                           TextButton(
-                            onPressed: () =>
-                                _showEditDialog(context, rule),
+                            onPressed: () => _showEditDialog(context, rule),
                             child: const Text('تعديل'),
                           ),
                         ),
@@ -487,8 +482,7 @@ class _PointRulesTabState extends ConsumerState<_PointRulesTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     }
@@ -534,8 +528,7 @@ class _EditPointRuleDialogState extends State<_EditPointRuleDialog> {
         text: rule?['name_ar'] as String? ?? rule?['name'] as String? ?? '');
     _valueCtrl = TextEditingController(
         text: '${rule?['points_value'] ?? rule?['value'] ?? ''}');
-    _triggerType =
-        rule?['trigger_type'] as String? ?? 'per_ride';
+    _triggerType = rule?['trigger_type'] as String? ?? 'per_ride';
     _isActive = rule?['is_active'] != false;
   }
 
@@ -556,9 +549,7 @@ class _EditPointRuleDialogState extends State<_EditPointRuleDialog> {
         'is_active': _isActive,
       };
       if (widget.rule == null) {
-        await Supabase.instance.client
-            .from('point_earning_rules')
-            .insert(data);
+        await Supabase.instance.client.from('point_earning_rules').insert(data);
       } else {
         await Supabase.instance.client
             .from('point_earning_rules')
@@ -577,8 +568,7 @@ class _EditPointRuleDialogState extends State<_EditPointRuleDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -620,8 +610,7 @@ class _EditPointRuleDialogState extends State<_EditPointRuleDialog> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                  labelText: 'القيمة (نقاط)',
-                  border: OutlineInputBorder()),
+                  labelText: 'القيمة (نقاط)', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
@@ -727,8 +716,7 @@ class _XpRulesTabState extends ConsumerState<_XpRulesTab> {
                         ),
                         DataCell(
                           TextButton(
-                            onPressed: () =>
-                                _showEditDialog(context, rule),
+                            onPressed: () => _showEditDialog(context, rule),
                             child: const Text('تعديل'),
                           ),
                         ),
@@ -768,8 +756,7 @@ class _XpRulesTabState extends ConsumerState<_XpRulesTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     }
@@ -855,8 +842,7 @@ class _EditXpRuleDialogState extends State<_EditXpRuleDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -889,8 +875,7 @@ class _EditXpRuleDialogState extends State<_EditXpRuleDialog> {
                     value: 'per_active_day', child: Text('لكل يوم نشط')),
                 DropdownMenuItem(
                     value: 'streak_bonus', child: Text('مكافأة سلسلة')),
-                DropdownMenuItem(
-                    value: 'achievement', child: Text('إنجاز')),
+                DropdownMenuItem(value: 'achievement', child: Text('إنجاز')),
               ],
               onChanged: (v) => setState(() => _triggerType = v!),
             ),
@@ -990,8 +975,8 @@ class _StreakConfigCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -1070,11 +1055,13 @@ class _MilestoneTileState extends State<_MilestoneTile> {
   void initState() {
     super.initState();
     _daysCtrl = TextEditingController(
-        text: '${widget.milestone['days'] ?? widget.milestone['streak_days'] ?? ''}');
+        text:
+            '${widget.milestone['days'] ?? widget.milestone['streak_days'] ?? ''}');
     _pointsCtrl = TextEditingController(
         text: '${widget.milestone['reward_points'] ?? ''}');
     _xpCtrl = TextEditingController(
-        text: '${widget.milestone['xp'] ?? widget.milestone['reward_xp'] ?? ''}');
+        text:
+            '${widget.milestone['xp'] ?? widget.milestone['reward_xp'] ?? ''}');
     _msgCtrl = TextEditingController(
         text: widget.milestone['message'] as String? ?? '');
   }
@@ -1091,9 +1078,7 @@ class _MilestoneTileState extends State<_MilestoneTile> {
   Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      await Supabase.instance.client
-          .from('streak_milestones')
-          .update({
+      await Supabase.instance.client.from('streak_milestones').update({
         'days': int.tryParse(_daysCtrl.text.trim()),
         'reward_points': int.tryParse(_pointsCtrl.text.trim()),
         'xp': int.tryParse(_xpCtrl.text.trim()),
@@ -1110,8 +1095,7 @@ class _MilestoneTileState extends State<_MilestoneTile> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -1199,8 +1183,7 @@ class _MilestoneTileState extends State<_MilestoneTile> {
                   TextField(
                     controller: _msgCtrl,
                     decoration: const InputDecoration(
-                        labelText: 'الرسالة',
-                        border: OutlineInputBorder()),
+                        labelText: 'الرسالة', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 8),
                   Align(
@@ -1211,8 +1194,7 @@ class _MilestoneTileState extends State<_MilestoneTile> {
                           ? const SizedBox(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2))
+                              child: CircularProgressIndicator(strokeWidth: 2))
                           : const Text('حفظ'),
                     ),
                   ),
@@ -1275,8 +1257,7 @@ class _RewardBoxesTabState extends ConsumerState<_RewardBoxesTab> {
                   columns: const [
                     DataColumn2(label: Text('الاسم'), size: ColumnSize.L),
                     DataColumn2(label: Text('النوع'), size: ColumnSize.M),
-                    DataColumn2(
-                        label: Text('فعّال'), size: ColumnSize.S),
+                    DataColumn2(label: Text('فعّال'), size: ColumnSize.S),
                     DataColumn2(
                         label: Text('تاريخ الانتهاء'), size: ColumnSize.M),
                   ],
@@ -1284,8 +1265,8 @@ class _RewardBoxesTabState extends ConsumerState<_RewardBoxesTab> {
                     final boxId = box['id'] as String? ?? '';
                     final isExpanded = _expandedBoxId == boxId;
                     return DataRow2(
-                      onTap: () => setState(() =>
-                          _expandedBoxId = isExpanded ? null : boxId),
+                      onTap: () => setState(
+                          () => _expandedBoxId = isExpanded ? null : boxId),
                       color: WidgetStateProperty.resolveWith((states) =>
                           isExpanded
                               ? AppColors.primary.withOpacity(0.04)
@@ -1311,8 +1292,8 @@ class _RewardBoxesTabState extends ConsumerState<_RewardBoxesTab> {
                             box['box_type'] as String? ?? ''))),
                         DataCell(_BoolChip(value: box['is_active'] == true)),
                         DataCell(Text(box['expires_at'] != null
-                            ? DateFormat('yyyy/MM/dd').format(
-                                DateTime.parse(box['expires_at']))
+                            ? DateFormat('yyyy/MM/dd')
+                                .format(DateTime.parse(box['expires_at']))
                             : '—')),
                       ],
                     );
@@ -1365,8 +1346,7 @@ class _BoxPrizesPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final prizes =
-        List<Map<String, dynamic>>.from(box['box_prizes'] ?? []);
+    final prizes = List<Map<String, dynamic>>.from(box['box_prizes'] ?? []);
 
     return Card(
       color: AppColors.background,
@@ -1391,10 +1371,9 @@ class _BoxPrizesPanel extends StatelessWidget {
                     dense: true,
                     leading: const Icon(Icons.card_giftcard,
                         color: AppColors.warning, size: 20),
-                    title: Text(
-                        prize['name_ar'] as String? ??
-                            prize['prize_type'] as String? ??
-                            '—'),
+                    title: Text(prize['name_ar'] as String? ??
+                        prize['prize_type'] as String? ??
+                        '—'),
                     subtitle: Text(
                         'القيمة: ${prize['value'] ?? '—'} — الاحتمالية: ${prize['probability'] ?? '—'}'),
                   )),
@@ -1447,8 +1426,7 @@ class _AddBoxDialogState extends State<_AddBoxDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -1574,8 +1552,7 @@ class _RedemptionOptionsTab extends ConsumerWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color:
-                                        AppColors.warning.withOpacity(0.15),
+                                    color: AppColors.warning.withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
@@ -1619,7 +1596,7 @@ class _RedemptionOptionsTab extends ConsumerWidget {
     switch (type) {
       case 'etb_cash':
       case 'cash':
-        return 'نقد ETB';
+        return 'نقد ₪';
       case 'sub_days':
         return 'أيام اشتراك';
       case 'discount':
@@ -1641,8 +1618,7 @@ class _RedemptionOptionsTab extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('خطأ: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.error),
         );
       }
     }

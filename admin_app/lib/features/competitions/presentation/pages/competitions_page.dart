@@ -67,12 +67,12 @@ final _countdownProvider = StreamProvider<Duration>((ref) {
     if (period == 'weekly') {
       // Calculate time until next Monday midnight
       final daysUntilMonday = (8 - now.weekday) % 7;
-      final nextMonday = DateTime(now.year, now.month, now.day + daysUntilMonday);
+      final nextMonday =
+          DateTime(now.year, now.month, now.day + daysUntilMonday);
       return nextMonday.difference(now);
     } else {
       // Monthly: end of current month
-      final nextMonth =
-          DateTime(now.year, now.month + 1, 1);
+      final nextMonth = DateTime(now.year, now.month + 1, 1);
       return nextMonth.difference(now);
     }
   });
@@ -191,13 +191,13 @@ class _SectionA_Leaderboard extends ConsumerWidget {
                   loading: () => const SizedBox.shrink(),
                   error: (_, __) => const SizedBox.shrink(),
                   data: (remaining) => Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.warning.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: AppColors.warning.withOpacity(0.3)),
+                      border:
+                          Border.all(color: AppColors.warning.withOpacity(0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -241,8 +241,8 @@ class _SectionA_Leaderboard extends ConsumerWidget {
                 const Spacer(),
                 // Driver view toggle info
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: AppColors.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -253,8 +253,8 @@ class _SectionA_Leaderboard extends ConsumerWidget {
                       Icon(Icons.visibility, size: 14, color: AppColors.info),
                       SizedBox(width: 4),
                       Text('معاينة كما يراها السائق',
-                          style: TextStyle(
-                              color: AppColors.info, fontSize: 12)),
+                          style:
+                              TextStyle(color: AppColors.info, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -264,10 +264,9 @@ class _SectionA_Leaderboard extends ConsumerWidget {
 
             // Leaderboard
             leaderboardAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (_, __) => const Center(
-                  child: Text('تعذر تحميل المتصدرين')),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) =>
+                  const Center(child: Text('تعذر تحميل المتصدرين')),
               data: (entries) => entries.isEmpty
                   ? const Center(
                       child: Padding(
@@ -299,9 +298,7 @@ class _PeriodTab extends StatelessWidget {
   final VoidCallback onTap;
 
   const _PeriodTab(
-      {required this.label,
-      required this.isSelected,
-      required this.onTap});
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -314,9 +311,7 @@ class _PeriodTab extends StatelessWidget {
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : Colors.grey.shade300,
           ),
         ),
         child: Text(
@@ -383,8 +378,7 @@ class _LeaderboardTable extends StatelessWidget {
                         child: Text(
                           '$rank',
                           style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14),
+                              fontWeight: FontWeight.w700, fontSize: 14),
                         ),
                       ),
               ),
@@ -397,8 +391,7 @@ class _LeaderboardTable extends StatelessWidget {
                 child: Text(
                   name.isNotEmpty ? name[0] : '؟',
                   style: TextStyle(
-                      color: _rankColor(rank),
-                      fontWeight: FontWeight.bold),
+                      color: _rankColor(rank), fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 12),
@@ -415,8 +408,7 @@ class _LeaderboardTable extends StatelessWidget {
                     Text(
                       'لوحة: $plate',
                       style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12),
+                          color: AppColors.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -424,8 +416,8 @@ class _LeaderboardTable extends StatelessWidget {
 
               // Score
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _rankColor(rank).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -513,8 +505,7 @@ class _SectionB_PrizeSettingsState
   TextEditingController _ctrl(String key, Map<String, dynamic> settings) {
     return _controllers.putIfAbsent(
       key,
-      () => TextEditingController(
-          text: '${settings[key] ?? 0}'),
+      () => TextEditingController(text: '${settings[key] ?? 0}'),
     );
   }
 
@@ -542,8 +533,7 @@ class _SectionB_PrizeSettingsState
             ),
             const SizedBox(height: 20),
             settingsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('خطأ: $e'),
               data: (settings) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -584,22 +574,19 @@ class _SectionB_PrizeSettingsState
                     prizes: [
                       _PrizeRow(
                         rank: 1,
-                        cashCtrl:
-                            _ctrl('monthly_prize_1_cash', settings),
+                        cashCtrl: _ctrl('monthly_prize_1_cash', settings),
                         freeDaysCtrl:
                             _ctrl('monthly_prize_1_free_days', settings),
                       ),
                       _PrizeRow(
                         rank: 2,
-                        cashCtrl:
-                            _ctrl('monthly_prize_2_cash', settings),
+                        cashCtrl: _ctrl('monthly_prize_2_cash', settings),
                         freeDaysCtrl:
                             _ctrl('monthly_prize_2_free_days', settings),
                       ),
                       _PrizeRow(
                         rank: 3,
-                        cashCtrl:
-                            _ctrl('monthly_prize_3_cash', settings),
+                        cashCtrl: _ctrl('monthly_prize_3_cash', settings),
                         freeDaysCtrl:
                             _ctrl('monthly_prize_3_free_days', settings),
                       ),
@@ -611,9 +598,7 @@ class _SectionB_PrizeSettingsState
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _saving
-                          ? null
-                          : () => _savePrizes(settings),
+                      onPressed: _saving ? null : () => _savePrizes(settings),
                       icon: _saving
                           ? const SizedBox(
                               width: 16,
@@ -627,9 +612,8 @@ class _SectionB_PrizeSettingsState
                             ),
                       label: Text(_saved ? 'تم الحفظ ✓' : 'حفظ الجوائز'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _saved
-                            ? AppColors.success
-                            : AppColors.primary,
+                        backgroundColor:
+                            _saved ? AppColors.success : AppColors.primary,
                       ),
                     ),
                   ),
@@ -693,9 +677,7 @@ class _PrizeSection extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                  fontSize: 15),
+                  fontWeight: FontWeight.w700, color: color, fontSize: 15),
             ),
           ],
         ),
@@ -705,15 +687,15 @@ class _PrizeSection extends StatelessWidget {
           children: [
             const SizedBox(width: 80),
             Expanded(
-              child: Text('المبلغ (ETB)',
-                  style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12)),
+              child: Text('المبلغ (₪)',
+                  style:
+                      TextStyle(color: AppColors.textSecondary, fontSize: 12)),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text('أيام مجانية',
-                  style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12)),
+                  style:
+                      TextStyle(color: AppColors.textSecondary, fontSize: 12)),
             ),
           ],
         ),
@@ -773,7 +755,7 @@ class _PrizeRow extends StatelessWidget {
                 isDense: true,
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                suffixText: 'ETB',
+                suffixText: '₪',
               ),
             ),
           ),
@@ -833,16 +815,12 @@ class _SectionC_RaffleSettingsState
     _initialized = true;
     _raffleEnabled = settings['raffle_enabled'] as bool? ?? true;
     _ridesCtrl.text = '${settings['raffle_rides_required'] ?? 30}';
-    _passengerRefCtrl.text =
-        '${settings['raffle_passenger_referrals'] ?? 0}';
-    _driverRefCtrl.text =
-        '${settings['raffle_driver_referrals'] ?? 0}';
+    _passengerRefCtrl.text = '${settings['raffle_passenger_referrals'] ?? 0}';
+    _driverRefCtrl.text = '${settings['raffle_driver_referrals'] ?? 0}';
     _raffleLogic = settings['raffle_logic'] as String? ?? 'OR';
     _prizeCashCtrl.text = '${settings['raffle_prize_cash'] ?? 1000}';
-    _prizeFreeDaysCtrl.text =
-        '${settings['raffle_prize_free_days'] ?? 7}';
-    _winnersCountCtrl.text =
-        '${settings['raffle_winners_count'] ?? 1}';
+    _prizeFreeDaysCtrl.text = '${settings['raffle_prize_free_days'] ?? 7}';
+    _winnersCountCtrl.text = '${settings['raffle_winners_count'] ?? 1}';
   }
 
   @override
@@ -869,8 +847,7 @@ class _SectionC_RaffleSettingsState
             ),
             const SizedBox(height: 20),
             settingsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('خطأ: $e'),
               data: (settings) {
                 _init(settings);
@@ -881,8 +858,7 @@ class _SectionC_RaffleSettingsState
                       // Enable toggle
                       SwitchListTile(
                         value: _raffleEnabled ?? true,
-                        onChanged: (v) =>
-                            setLocal(() => _raffleEnabled = v),
+                        onChanged: (v) => setLocal(() => _raffleEnabled = v),
                         title: const Text(
                           'تفعيل السحب بالقرعة',
                           style: TextStyle(fontWeight: FontWeight.w600),
@@ -940,8 +916,8 @@ class _SectionC_RaffleSettingsState
                               onChanged: (v) =>
                                   setLocal(() => _raffleLogic = v),
                               title: const Text('يكفي شرط واحد (OR)'),
-                              subtitle: const Text(
-                                  'السائق مؤهل إذا استوفى أي شرط'),
+                              subtitle:
+                                  const Text('السائق مؤهل إذا استوفى أي شرط'),
                               activeColor: AppColors.primary,
                               contentPadding: EdgeInsets.zero,
                               dense: true,
@@ -975,7 +951,7 @@ class _SectionC_RaffleSettingsState
                               child: _LabeledField(
                                 label: 'المبلغ النقدي',
                                 controller: _prizeCashCtrl,
-                                suffix: 'ETB',
+                                suffix: '₪',
                                 icon: Icons.attach_money,
                               ),
                             ),
@@ -1004,22 +980,18 @@ class _SectionC_RaffleSettingsState
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: _saving
-                              ? null
-                              : () => _save(settings),
+                          onPressed: _saving ? null : () => _save(settings),
                           icon: _saving
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white),
+                                      strokeWidth: 2, color: Colors.white),
                                 )
-                              : Icon(
-                                  _saved ? Icons.check : Icons.save,
+                              : Icon(_saved ? Icons.check : Icons.save,
                                   size: 18),
-                          label: Text(
-                              _saved ? 'تم الحفظ ✓' : 'حفظ إعدادات السحب'),
+                          label:
+                              Text(_saved ? 'تم الحفظ ✓' : 'حفظ إعدادات السحب'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _saved
                                 ? AppColors.success
@@ -1044,15 +1016,13 @@ class _SectionC_RaffleSettingsState
       final service = ref.read(_adminSvcProvider);
       final updated = Map<String, dynamic>.from(current);
       updated['raffle_enabled'] = _raffleEnabled;
-      updated['raffle_rides_required'] =
-          int.tryParse(_ridesCtrl.text) ?? 30;
+      updated['raffle_rides_required'] = int.tryParse(_ridesCtrl.text) ?? 30;
       updated['raffle_passenger_referrals'] =
           int.tryParse(_passengerRefCtrl.text) ?? 0;
       updated['raffle_driver_referrals'] =
           int.tryParse(_driverRefCtrl.text) ?? 0;
       updated['raffle_logic'] = _raffleLogic;
-      updated['raffle_prize_cash'] =
-          int.tryParse(_prizeCashCtrl.text) ?? 1000;
+      updated['raffle_prize_cash'] = int.tryParse(_prizeCashCtrl.text) ?? 1000;
       updated['raffle_prize_free_days'] =
           int.tryParse(_prizeFreeDaysCtrl.text) ?? 7;
       updated['raffle_winners_count'] =
@@ -1124,12 +1094,7 @@ class _SectionD_RankingCriteriaState
       'الترتيب حسب عدد الرحلات المكتملة',
       Icons.directions_car
     ),
-    (
-      'points',
-      'النقاط',
-      'الترتيب حسب النقاط المتراكمة',
-      Icons.star
-    ),
+    ('points', 'النقاط', 'الترتيب حسب النقاط المتراكمة', Icons.star),
     (
       'rating',
       'التقييم',
@@ -1168,15 +1133,13 @@ class _SectionD_RankingCriteriaState
             ),
             const SizedBox(height: 20),
             settingsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('خطأ: $e'),
               data: (settings) {
                 if (!_initialized) {
                   _initialized = true;
                   _criteria =
-                      settings['ranking_criteria'] as String? ??
-                          'rides_count';
+                      settings['ranking_criteria'] as String? ?? 'rides_count';
                   _weekStartDay =
                       settings['week_start_day'] as String? ?? 'monday';
                 }
@@ -1201,8 +1164,7 @@ class _SectionD_RankingCriteriaState
                           child: RadioListTile<String>(
                             value: opt.$1,
                             groupValue: _criteria,
-                            onChanged: (v) =>
-                                setLocal(() => _criteria = v),
+                            onChanged: (v) => setLocal(() => _criteria = v),
                             title: Row(
                               children: [
                                 Icon(opt.$4,
@@ -1230,8 +1192,7 @@ class _SectionD_RankingCriteriaState
                         value: _weekStartDay,
                         decoration: const InputDecoration(
                           labelText: 'يوم بداية الأسبوع',
-                          prefixIcon:
-                              Icon(Icons.calendar_today, size: 18),
+                          prefixIcon: Icon(Icons.calendar_today, size: 18),
                         ),
                         items: const [
                           DropdownMenuItem(
@@ -1241,8 +1202,7 @@ class _SectionD_RankingCriteriaState
                           DropdownMenuItem(
                               value: 'monday', child: Text('الاثنين')),
                         ],
-                        onChanged: (v) =>
-                            setLocal(() => _weekStartDay = v),
+                        onChanged: (v) => setLocal(() => _weekStartDay = v),
                       ),
                       const SizedBox(height: 16),
 
@@ -1255,21 +1215,17 @@ class _SectionD_RankingCriteriaState
                                   setState(() => _saving = true);
                                   try {
                                     final updated =
-                                        Map<String, dynamic>.from(
-                                            settings);
+                                        Map<String, dynamic>.from(settings);
                                     updated['ranking_criteria'] = _criteria;
-                                    updated['week_start_day'] =
-                                        _weekStartDay;
+                                    updated['week_start_day'] = _weekStartDay;
                                     await ref
                                         .read(_adminSvcProvider)
                                         .upsertCompetitionSettings(updated);
-                                    ref.refresh(
-                                        competitionSettingsProvider);
+                                    ref.refresh(competitionSettingsProvider);
                                     if (mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
-                                              content:
-                                                  Text('تم الحفظ بنجاح')));
+                                              content: Text('تم الحفظ بنجاح')));
                                     }
                                   } finally {
                                     if (mounted)
@@ -1281,8 +1237,7 @@ class _SectionD_RankingCriteriaState
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white))
+                                      strokeWidth: 2, color: Colors.white))
                               : const Icon(Icons.save, size: 18),
                           label: const Text('حفظ معيار الترتيب'),
                         ),
@@ -1336,15 +1291,13 @@ class _SectionE_PrivacySettingsState
             ),
             const SizedBox(height: 20),
             settingsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('خطأ: $e'),
               data: (settings) {
                 if (!_initialized) {
                   _initialized = true;
                   _visibleDigits =
-                      (settings['plate_visible_digits'] as num?)?.toInt() ??
-                          2;
+                      (settings['plate_visible_digits'] as num?)?.toInt() ?? 2;
                 }
                 return StatefulBuilder(
                   builder: (context, setLocal) => Column(
@@ -1442,20 +1395,17 @@ class _SectionE_PrivacySettingsState
                                   setState(() => _saving = true);
                                   try {
                                     final updated =
-                                        Map<String, dynamic>.from(
-                                            settings);
+                                        Map<String, dynamic>.from(settings);
                                     updated['plate_visible_digits'] =
                                         _visibleDigits;
                                     await ref
                                         .read(_adminSvcProvider)
                                         .upsertCompetitionSettings(updated);
-                                    ref.refresh(
-                                        competitionSettingsProvider);
+                                    ref.refresh(competitionSettingsProvider);
                                     if (mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
-                                              content:
-                                                  Text('تم الحفظ بنجاح')));
+                                              content: Text('تم الحفظ بنجاح')));
                                     }
                                   } finally {
                                     if (mounted)
@@ -1467,8 +1417,7 @@ class _SectionE_PrivacySettingsState
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white))
+                                      strokeWidth: 2, color: Colors.white))
                               : const Icon(Icons.save, size: 18),
                           label: const Text('حفظ إعدادات الخصوصية'),
                           style: ElevatedButton.styleFrom(
@@ -1500,12 +1449,10 @@ class _PlatePreview extends StatelessWidget {
       children: [
         Text(
           'الأصلي: ',
-          style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 13),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(4),
@@ -1520,17 +1467,14 @@ class _PlatePreview extends StatelessWidget {
         const SizedBox(width: 16),
         Text(
           'المُقنَّع: ',
-          style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 13),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-                color: AppColors.primary.withOpacity(0.3)),
+            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
           ),
           child: Text(
             masked,
@@ -1559,7 +1503,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final winnersAsync = ref.watch(competitionWinnersProvider);
     final dateFormat = DateFormat('yyyy/MM/dd');
-    final currency = NumberFormat.currency(locale: 'am_ET', symbol: 'ETB ');
+    final currency = NumberFormat.currency(locale: 'he_IL', symbol: '₪ ');
 
     return Card(
       child: Padding(
@@ -1592,8 +1536,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             winnersAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('خطأ: $e'),
               data: (winners) => winners.isEmpty
                   ? const Center(
@@ -1602,12 +1545,11 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                         child: Column(
                           children: [
                             Icon(Icons.history,
-                                size: 48,
-                                color: AppColors.textSecondary),
+                                size: 48, color: AppColors.textSecondary),
                             SizedBox(height: 12),
                             Text('لا يوجد فائزون بعد',
-                                style: TextStyle(
-                                    color: AppColors.textSecondary)),
+                                style:
+                                    TextStyle(color: AppColors.textSecondary)),
                           ],
                         ),
                       ),
@@ -1632,17 +1574,14 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                           DataColumn2(
                               label: Text('الفائز'), size: ColumnSize.L),
                           DataColumn2(
-                              label: Text('نوع الفوز'),
-                              size: ColumnSize.M),
+                              label: Text('نوع الفوز'), size: ColumnSize.M),
                           DataColumn2(
                               label: Text('الجائزة'),
                               size: ColumnSize.M,
                               numeric: true),
                           DataColumn2(
-                              label: Text('حالة الدفع'),
-                              size: ColumnSize.S),
-                          DataColumn2(
-                              label: Text('إجراء'), size: ColumnSize.M),
+                              label: Text('حالة الدفع'), size: ColumnSize.S),
+                          DataColumn2(label: Text('إجراء'), size: ColumnSize.M),
                         ],
                         rows: winners.map((winner) {
                           final driver = winner['driver'] as Map? ?? {};
@@ -1665,11 +1604,10 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                                   children: [
                                     CircleAvatar(
                                       radius: 16,
-                                      backgroundColor: AppColors.tertiary
-                                          .withOpacity(0.15),
+                                      backgroundColor:
+                                          AppColors.tertiary.withOpacity(0.15),
                                       child: const Icon(Icons.person,
-                                          size: 16,
-                                          color: AppColors.tertiary),
+                                          size: 16, color: AppColors.tertiary),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
@@ -1691,9 +1629,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    winType == 'rank'
-                                        ? 'مركز'
-                                        : 'قرعة',
+                                    winType == 'rank' ? 'مركز' : 'قرعة',
                                     style: TextStyle(
                                       color: winType == 'rank'
                                           ? AppColors.tertiary
@@ -1739,8 +1675,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                                               style: TextStyle(
                                                   color: AppColors.success,
                                                   fontSize: 12,
-                                                  fontWeight:
-                                                      FontWeight.w600)),
+                                                  fontWeight: FontWeight.w600)),
                                         ],
                                       )
                                     : const Row(
@@ -1754,8 +1689,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                                               style: TextStyle(
                                                   color: AppColors.warning,
                                                   fontSize: 12,
-                                                  fontWeight:
-                                                      FontWeight.w600)),
+                                                  fontWeight: FontWeight.w600)),
                                         ],
                                       ),
                               ),
@@ -1768,8 +1702,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
                                         style: TextButton.styleFrom(
                                           foregroundColor: AppColors.success,
                                         ),
-                                        child:
-                                            const Text('تأكيد الدفع'),
+                                        child: const Text('تأكيد الدفع'),
                                       ),
                               ),
                             ],
@@ -1798,7 +1731,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
             Text('الفائز: ${driver['full_name'] ?? '—'}'),
             const SizedBox(height: 8),
             Text(
-              'الجائزة: ${winner['cash_prize'] ?? 0} ETB + ${winner['free_days'] ?? 0} يوم مجاني',
+              'الجائزة: ${winner['cash_prize'] ?? 0} ₪ + ${winner['free_days'] ?? 0} يوم مجاني',
             ),
             const SizedBox(height: 8),
             const Text(
@@ -1809,8 +1742,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('إلغاء')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
           ElevatedButton.icon(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -1820,8 +1752,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
             },
             icon: const Icon(Icons.check, size: 16),
             label: const Text('تأكيد الدفع'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
           ),
         ],
       ),
@@ -1846,8 +1777,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('إلغاء')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
           ElevatedButton.icon(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -1875,8 +1805,7 @@ class _SectionF_WinnersHistory extends ConsumerWidget {
             },
             icon: const Icon(Icons.casino, size: 16),
             label: const Text('تشغيل الآن'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.warning),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
           ),
         ],
       ),

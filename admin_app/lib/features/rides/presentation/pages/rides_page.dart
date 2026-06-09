@@ -132,7 +132,7 @@ class RidesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(ridesPageProvider);
     final notifier = ref.read(ridesPageProvider.notifier);
-    final currency = NumberFormat.currency(locale: 'am_ET', symbol: '');
+    final currency = NumberFormat.currency(locale: 'he_IL', symbol: '₪ ');
     final dateFormat = DateFormat('MM/dd HH:mm');
 
     return Column(
@@ -213,7 +213,8 @@ class RidesPage extends ConsumerWidget {
                                             SizedBox(height: 12),
                                             Text('لا توجد رحلات',
                                                 style: TextStyle(
-                                                    color: AppColors.textSecondary)),
+                                                    color: AppColors
+                                                        .textSecondary)),
                                           ],
                                         ),
                                       )
@@ -227,7 +228,8 @@ class RidesPage extends ConsumerWidget {
                                           horizontalInside: BorderSide(
                                               color: Colors.grey.shade100),
                                         ),
-                                        headingRowColor: WidgetStateProperty.all(
+                                        headingRowColor:
+                                            WidgetStateProperty.all(
                                           AppColors.primary.withOpacity(0.04),
                                         ),
                                         columns: const [
@@ -255,8 +257,9 @@ class RidesPage extends ConsumerWidget {
                                               size: ColumnSize.S),
                                         ],
                                         rows: state.rides.map((ride) {
-                                          final id = (ride['id'] as String? ?? '')
-                                              .substring(0, 8);
+                                          final id =
+                                              (ride['id'] as String? ?? '')
+                                                  .substring(0, 8);
                                           final passenger =
                                               ride['passenger'] as Map? ?? {};
                                           final driver =
@@ -281,15 +284,16 @@ class RidesPage extends ConsumerWidget {
                                                           as String? ??
                                                       ''))),
                                               DataCell(Text(
-                                                '${currency.format(ride['fare_amount'] ?? 0)} ETB',
+                                                '${currency.format(ride['fare_amount'] ?? 0)} ₪',
                                                 textAlign: TextAlign.end,
                                               )),
-                                              DataCell(Text(
-                                                  ride['created_at'] != null
-                                                      ? dateFormat.format(
-                                                          DateTime.parse(
-                                                              ride['created_at']))
-                                                      : '—')),
+                                              DataCell(Text(ride[
+                                                          'created_at'] !=
+                                                      null
+                                                  ? dateFormat.format(
+                                                      DateTime.parse(
+                                                          ride['created_at']))
+                                                  : '—')),
                                               DataCell(StatusBadge(
                                                   status: ride['status']
                                                           as String? ??
@@ -343,8 +347,7 @@ class _ActiveRidesBanner extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.secondary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: AppColors.secondary.withOpacity(0.3)),
+                border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -403,18 +406,14 @@ class _FiltersBarState extends State<_FiltersBar> {
             width: 160,
             child: DropdownButtonFormField<String>(
               value: _filter.status.isEmpty ? null : _filter.status,
-              decoration: const InputDecoration(
-                  labelText: 'الحالة', isDense: true),
+              decoration:
+                  const InputDecoration(labelText: 'الحالة', isDense: true),
               items: const [
                 DropdownMenuItem(value: '', child: Text('الكل')),
-                DropdownMenuItem(
-                    value: 'completed', child: Text('مكتملة')),
-                DropdownMenuItem(
-                    value: 'in_progress', child: Text('جارية')),
-                DropdownMenuItem(
-                    value: 'cancelled', child: Text('ملغاة')),
-                DropdownMenuItem(
-                    value: 'accepted', child: Text('مقبولة')),
+                DropdownMenuItem(value: 'completed', child: Text('مكتملة')),
+                DropdownMenuItem(value: 'in_progress', child: Text('جارية')),
+                DropdownMenuItem(value: 'cancelled', child: Text('ملغاة')),
+                DropdownMenuItem(value: 'accepted', child: Text('مقبولة')),
               ],
               onChanged: (v) {
                 setState(() => _filter = _filter.copyWith(status: v ?? ''));
@@ -435,8 +434,7 @@ class _FiltersBarState extends State<_FiltersBar> {
                 DropdownMenuItem(value: 'sedan', child: Text('سيدان')),
                 DropdownMenuItem(value: 'suv', child: Text('SUV')),
                 DropdownMenuItem(value: 'vip', child: Text('VIP')),
-                DropdownMenuItem(
-                    value: 'minibus', child: Text('ميني باص')),
+                DropdownMenuItem(value: 'minibus', child: Text('ميني باص')),
               ],
               onChanged: (v) {
                 setState(
@@ -461,12 +459,12 @@ class _MapView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.map_outlined, size: 64, color: AppColors.textSecondary),
+              Icon(Icons.map_outlined,
+                  size: 64, color: AppColors.textSecondary),
               SizedBox(height: 16),
               Text(
                 'خريطة الرحلات النشطة',
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 8),
               Text(

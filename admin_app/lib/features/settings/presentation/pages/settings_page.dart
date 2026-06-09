@@ -32,32 +32,41 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   // ── Fixed hour surge rules ───────────────────────────────────────────────────
   final _fixedRules = <Map<String, dynamic>>[
-    {'name': 'ذروة الصباح',    'active': false, 'multiplier': 1.3,
-     'days': [0,1,2,3,4], 'from': '07:00', 'to': '09:00'},
-    {'name': 'ذروة المساء',    'active': false, 'multiplier': 1.4,
-     'days': [0,1,2,3,4], 'from': '17:00', 'to': '19:30'},
-    {'name': 'ليلة نهاية الأسبوع', 'active': false, 'multiplier': 1.2,
-     'days': [5,6], 'from': '20:00', 'to': '23:59'},
+    {
+      'name': 'ذروة الصباح',
+      'active': false,
+      'multiplier': 1.3,
+      'days': [0, 1, 2, 3, 4],
+      'from': '07:00',
+      'to': '09:00'
+    },
+    {
+      'name': 'ذروة المساء',
+      'active': false,
+      'multiplier': 1.4,
+      'days': [0, 1, 2, 3, 4],
+      'from': '17:00',
+      'to': '19:30'
+    },
+    {
+      'name': 'ليلة نهاية الأسبوع',
+      'active': false,
+      'multiplier': 1.2,
+      'days': [5, 6],
+      'from': '20:00',
+      'to': '23:59'
+    },
   ];
 
   // ── Vehicle pricing ─────────────────────────────────────────────────────────
   final Map<String, TextEditingController> _basePrice = {
-    'sedan': TextEditingController(text: '30'),
-    'suv': TextEditingController(text: '45'),
-    'vip': TextEditingController(text: '60'),
-    'minibus': TextEditingController(text: '80'),
+    'car': TextEditingController(text: '30'),
+    'bus': TextEditingController(text: '80'),
   };
   final Map<String, TextEditingController> _pricePerKm = {
-    'sedan': TextEditingController(text: '5'),
-    'suv': TextEditingController(text: '7'),
-    'vip': TextEditingController(text: '10'),
-    'minibus': TextEditingController(text: '4'),
+    'car': TextEditingController(text: '5'),
+    'bus': TextEditingController(text: '4'),
   };
-
-  // ── Subscription pricing ────────────────────────────────────────────────────
-  final _dailyPriceCtrl = TextEditingController(text: '50');
-  final _weeklyPriceCtrl = TextEditingController(text: '300');
-  final _monthlyPriceCtrl = TextEditingController(text: '1000');
 
   // ── Points rules ────────────────────────────────────────────────────────────
   final _pointsPerRideCtrl = TextEditingController(text: '10');
@@ -70,26 +79,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   final _pointsForFreeRideCtrl = TextEditingController(text: '500');
   final _maxFreeRideEtbCtrl = TextEditingController(text: '150');
 
-  // ── Fleet Owner Subscription Plans ──────────────────────────────────────────
-  List<Map<String, dynamic>> _fleetPlans = [];
-  bool _fleetPlansLoading = false;
-
   // ── Legal Documents ──────────────────────────────────────────────────────────
   Map<String, dynamic>? _activeDoc;
   int _docAcceptanceCount = 0;
   bool _legalDocLoading = false;
 
-  static const _vehicleLabels = {
-    'sedan': 'سيدان',
-    'suv': 'دفع رباعي',
-    'vip': 'VIP',
-    'minibus': 'ميني باص',
-  };
-
   @override
   void initState() {
     super.initState();
-    _loadFleetPlans();
     _loadLegalDoc();
   }
 
@@ -101,9 +98,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     for (final c in _pricePerKm.values) {
       c.dispose();
     }
-    _dailyPriceCtrl.dispose();
-    _weeklyPriceCtrl.dispose();
-    _monthlyPriceCtrl.dispose();
     _pointsPerRideCtrl.dispose();
     _holidayMultiplierCtrl.dispose();
     _digitalPaymentBonusCtrl.dispose();
@@ -116,154 +110,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     _surgeUntilCtrl.dispose();
     _surgeNameCtrl.dispose();
     super.dispose();
-  }
-
-  // ── Fleet Plans helpers ──────────────────────────────────────────────────────
-  Future<void> _loadFleetPlans() async {
-    if (!mounted) return;
-    setState(() => _fleetPlansLoading = true);
-    try {
-      final data = await Supabase.instance.client
-          .from('fleet_owner_subscription_plans')
-          .select()
-          .eq('is_active', true)
-          .order('max_vehicles');
-      if (mounted) {
-        setState(() => _fleetPlans = List<Map<String, dynamic>>.from(data));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل خطط الأسطول: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _fleetPlansLoading = false);
-    }
-  }
-
-  Future<void> _toggleFleetPlanActive(
-      Map<String, dynamic> plan, bool newValue) async {
-    try {
-      await Supabase.instance.client
-          .from('fleet_owner_subscription_plans')
-          .update({'is_active': newValue})
-          .eq('id', plan['id']);
-      await _loadFleetPlans();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _showAddFleetPlanDialog() async {
-    final nameCtrl = TextEditingController();
-    final maxVehiclesCtrl = TextEditingController();
-    final monthlyFeeCtrl = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('إضافة خطة جديدة'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'اسم الخطة'),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'مطلوب' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: maxVehiclesCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'الحد الأقصى للمركبات',
-                  suffixText: 'مركبة',
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'مطلوب';
-                  if (int.tryParse(v) == null) return 'رقم صحيح مطلوب';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: monthlyFeeCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'الرسوم الشهرية',
-                  suffixText: 'ETB/شهر',
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'مطلوب';
-                  if (int.tryParse(v) == null) return 'رقم صحيح مطلوب';
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (!formKey.currentState!.validate()) return;
-              try {
-                await Supabase.instance.client
-                    .from('fleet_owner_subscription_plans')
-                    .insert({
-                  'name': nameCtrl.text.trim(),
-                  'max_vehicles': int.parse(maxVehiclesCtrl.text),
-                  'monthly_fee_etb': int.parse(monthlyFeeCtrl.text),
-                  'is_active': true,
-                });
-                if (ctx.mounted) Navigator.of(ctx).pop();
-                await _loadFleetPlans();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('تمت إضافة الخطة بنجاح'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('خطأ في الإضافة: $e'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-
-    nameCtrl.dispose();
-    maxVehiclesCtrl.dispose();
-    monthlyFeeCtrl.dispose();
   }
 
   // ── Legal Documents helpers ──────────────────────────────────────────────────
@@ -330,8 +176,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     labelText: 'رقم الإصدار',
                     hintText: 'مثال: 1.0.0',
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'مطلوب' : null,
+                  validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -342,8 +187,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     alignLabelWithHint: true,
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'مطلوب' : null,
+                  validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
                 ),
               ],
             ),
@@ -366,8 +210,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 });
                 await supabase
                     .from('legal_documents')
-                    .update({'is_active': false})
-                    .neq('version', versionCtrl.text.trim());
+                    .update({'is_active': false}).neq(
+                        'version', versionCtrl.text.trim());
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 await _loadLegalDoc();
                 if (mounted) {
@@ -424,8 +268,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                'تم تفعيل الذروة الطارئة ×${mult.toStringAsFixed(1)}'),
+            content:
+                Text('تم تفعيل الذروة الطارئة ×${mult.toStringAsFixed(1)}'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -464,20 +308,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         'vehicle_pricing': {
           for (final type in _basePrice.keys)
             type: {
-              'base_price':
-                  double.tryParse(_basePrice[type]!.text) ?? 0.0,
-              'price_per_km':
-                  double.tryParse(_pricePerKm[type]!.text) ?? 0.0,
+              'base_price': double.tryParse(_basePrice[type]!.text) ?? 0.0,
+              'price_per_km': double.tryParse(_pricePerKm[type]!.text) ?? 0.0,
             }
         },
-        'subscription_pricing': {
-          'daily': double.tryParse(_dailyPriceCtrl.text) ?? 50,
-          'weekly': double.tryParse(_weeklyPriceCtrl.text) ?? 300,
-          'monthly': double.tryParse(_monthlyPriceCtrl.text) ?? 1000,
-        },
         'points_rules': {
-          'points_per_ride':
-              int.tryParse(_pointsPerRideCtrl.text) ?? 10,
+          'points_per_ride': int.tryParse(_pointsPerRideCtrl.text) ?? 10,
           'holiday_multiplier':
               double.tryParse(_holidayMultiplierCtrl.text) ?? 2.0,
           'digital_payment_bonus':
@@ -486,8 +322,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         'points_redemption': {
           'points_for_20_discount':
               int.tryParse(_pointsFor20DiscountCtrl.text) ?? 100,
-          'max_discount_etb':
-              double.tryParse(_maxDiscountEtbCtrl.text) ?? 50.0,
+          'max_discount_etb': double.tryParse(_maxDiscountEtbCtrl.text) ?? 50.0,
           'points_for_free_ride':
               int.tryParse(_pointsForFreeRideCtrl.text) ?? 500,
           'max_free_ride_etb':
@@ -560,13 +395,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   // Fixed-hour rules
                   const Text(
                     'قواعد الذروة الثابتة (يومية)',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                   ),
                   const SizedBox(height: 8),
                   ..._fixedRules.map((rule) => Padding(
-                        padding:
-                            const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
                           children: [
                             Expanded(
@@ -592,8 +425,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   // Emergency surge
                   const Text(
                     'ذروة طارئة / يدوية',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                   ),
                   const SizedBox(height: 10),
                   LayoutBuilder(
@@ -601,14 +433,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       final isWide = constraints.maxWidth > 500;
                       return isWide
                           ? Row(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: TextFormField(
                                     controller: _surgeNameCtrl,
-                                    decoration:
-                                        const InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'اسم الذروة',
                                       isDense: true,
                                     ),
@@ -618,14 +448,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SizedBox(
                                   width: 110,
                                   child: TextFormField(
-                                    controller:
-                                        _surgeMultiplierCtrl,
+                                    controller: _surgeMultiplierCtrl,
                                     keyboardType:
-                                        const TextInputType
-                                            .numberWithOptions(
-                                                decimal: true),
-                                    decoration:
-                                        const InputDecoration(
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    decoration: const InputDecoration(
                                       labelText: 'المضاعف',
                                       suffixText: 'x',
                                       isDense: true,
@@ -636,10 +463,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 Expanded(
                                   child: TextFormField(
                                     controller: _surgeUntilCtrl,
-                                    decoration:
-                                        const InputDecoration(
-                                      labelText:
-                                          'تنتهي (ISO أو فارغ=2 ساعة)',
+                                    decoration: const InputDecoration(
+                                      labelText: 'تنتهي (ISO أو فارغ=2 ساعة)',
                                       isDense: true,
                                     ),
                                   ),
@@ -650,20 +475,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               children: [
                                 TextFormField(
                                   controller: _surgeNameCtrl,
-                                  decoration:
-                                      const InputDecoration(
-                                          labelText: 'اسم الذروة'),
+                                  decoration: const InputDecoration(
+                                      labelText: 'اسم الذروة'),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
-                                  controller:
-                                      _surgeMultiplierCtrl,
+                                  controller: _surgeMultiplierCtrl,
                                   keyboardType:
-                                      const TextInputType
-                                          .numberWithOptions(
-                                              decimal: true),
-                                  decoration:
-                                      const InputDecoration(
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  decoration: const InputDecoration(
                                     labelText: 'المضاعف',
                                     suffixText: 'x',
                                   ),
@@ -671,10 +492,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _surgeUntilCtrl,
-                                  decoration:
-                                      const InputDecoration(
-                                    labelText:
-                                        'تنتهي (ISO أو فارغ=2 ساعة)',
+                                  decoration: const InputDecoration(
+                                    labelText: 'تنتهي (ISO أو فارغ=2 ساعة)',
                                   ),
                                 ),
                               ],
@@ -686,16 +505,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     children: [
                       if (!_surgeEnabled)
                         ElevatedButton.icon(
-                          onPressed: _surgeSaving
-                              ? null
-                              : _activateEmergencySurge,
+                          onPressed:
+                              _surgeSaving ? null : _activateEmergencySurge,
                           icon: _surgeSaving
                               ? const SizedBox(
                                   width: 14,
                                   height: 14,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white),
+                                      strokeWidth: 2, color: Colors.white),
                                 )
                               : const Icon(Icons.bolt, size: 18),
                           label: const Text('تفعيل الذروة الآن'),
@@ -710,21 +527,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.orange.shade50,
-                            borderRadius:
-                                BorderRadius.circular(8),
-                            border: Border.all(
-                                color: Colors.orange.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.shade300),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.bolt,
-                                  color: Colors.orange, size: 16),
+                              Icon(Icons.bolt, color: Colors.orange, size: 16),
                               SizedBox(width: 4),
                               Text('الذروة الطارئة مفعّلة',
                                   style: TextStyle(
                                       color: Colors.orange,
-                                      fontWeight:
-                                          FontWeight.w700)),
+                                      fontWeight: FontWeight.w700)),
                             ],
                           ),
                         ),
@@ -735,8 +548,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           label: const Text('إيقاف'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.error,
-                            side: const BorderSide(
-                                color: AppColors.error),
+                            side: const BorderSide(color: AppColors.error),
                           ),
                         ),
                       ],
@@ -756,8 +568,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 children: [
                   // Table header
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(8),
@@ -775,7 +587,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'سعر الأساس (ETB)',
+                            'سعر الأساس (₪)',
                             style: TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 13),
                           ),
@@ -784,7 +596,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            'سعر/كم (ETB)',
+                            'سعر/كم (₪)',
                             style: TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 13),
                           ),
@@ -801,12 +613,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               flex: 2,
                               child: Row(
                                 children: [
-                                  const Icon(Icons.directions_car,
-                                      size: 16,
-                                      color: AppColors.textSecondary),
+                                  Icon(
+                                    type == 'bus'
+                                        ? Icons.directions_bus
+                                        : Icons.directions_car,
+                                    size: 16,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    _vehicleLabels[type] ?? type,
+                                    type == 'bus' ? 'باص' : 'سيارة',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
@@ -822,7 +638,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         decimal: true),
                                 decoration: const InputDecoration(
                                   isDense: true,
-                                  suffixText: 'ETB',
+                                  suffixText: '₪',
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 8),
                                 ),
@@ -840,7 +656,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         decimal: true),
                                 decoration: const InputDecoration(
                                   isDense: true,
-                                  suffixText: 'ETB/كم',
+                                  suffixText: '₪/كم',
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 8),
                                 ),
@@ -853,45 +669,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       )),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // ── Section 2: Subscription Pricing ──────────────────────────────
-            _SectionCard(
-              title: 'أسعار الاشتراكات',
-              icon: Icons.card_membership,
-              color: AppColors.secondary,
-              child: LayoutBuilder(builder: (context, constraints) {
-                final isWide = constraints.maxWidth > 600;
-                return isWide
-                    ? Row(
-                        children: [
-                          Expanded(
-                              child: _buildSubPriceField(
-                                  _dailyPriceCtrl, 'السعر اليومي')),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: _buildSubPriceField(
-                                  _weeklyPriceCtrl, 'السعر الأسبوعي')),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: _buildSubPriceField(
-                                  _monthlyPriceCtrl, 'السعر الشهري')),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          _buildSubPriceField(
-                              _dailyPriceCtrl, 'السعر اليومي'),
-                          const SizedBox(height: 10),
-                          _buildSubPriceField(
-                              _weeklyPriceCtrl, 'السعر الأسبوعي'),
-                          const SizedBox(height: 10),
-                          _buildSubPriceField(
-                              _monthlyPriceCtrl, 'السعر الشهري'),
-                        ],
-                      );
-              }),
             ),
             const SizedBox(height: 16),
 
@@ -911,7 +688,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 labelText: 'نقاط لكل رحلة',
-                                prefixIcon: Icon(Icons.directions_car, size: 18),
+                                prefixIcon:
+                                    Icon(Icons.directions_car, size: 18),
                                 suffixText: 'نقطة',
                               ),
                             ),
@@ -959,9 +737,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: _holidayMultiplierCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             decoration: const InputDecoration(
                               labelText: 'مضاعف العطل',
                               suffixText: 'x',
@@ -970,9 +747,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: _digitalPaymentBonusCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             decoration: const InputDecoration(
                               labelText: 'مكافأة الدفع الإلكتروني',
                               suffixText: '%',
@@ -1002,8 +778,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
                                     labelText: 'نقاط للخصم 20%',
-                                    prefixIcon:
-                                        Icon(Icons.discount, size: 18),
+                                    prefixIcon: Icon(Icons.discount, size: 18),
                                     suffixText: 'نقطة',
                                   ),
                                 ),
@@ -1017,9 +792,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           decimal: true),
                                   decoration: const InputDecoration(
                                     labelText: 'الحد الأقصى للخصم',
-                                    prefixIcon:
-                                        Icon(Icons.money_off, size: 18),
-                                    suffixText: 'ETB',
+                                    prefixIcon: Icon(Icons.money_off, size: 18),
+                                    suffixText: '₪',
                                   ),
                                 ),
                               ),
@@ -1034,8 +808,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
                                     labelText: 'نقاط للرحلة المجانية',
-                                    prefixIcon: Icon(Icons.directions_car,
-                                        size: 18),
+                                    prefixIcon:
+                                        Icon(Icons.directions_car, size: 18),
                                     suffixText: 'نقطة',
                                   ),
                                 ),
@@ -1049,9 +823,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           decimal: true),
                                   decoration: const InputDecoration(
                                     labelText: 'الحد الأقصى للرحلة المجانية',
-                                    prefixIcon: Icon(Icons.price_check,
-                                        size: 18),
-                                    suffixText: 'ETB',
+                                    prefixIcon:
+                                        Icon(Icons.price_check, size: 18),
+                                    suffixText: '₪',
                                   ),
                                 ),
                               ),
@@ -1072,12 +846,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: _maxDiscountEtbCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             decoration: const InputDecoration(
                               labelText: 'الحد الأقصى للخصم',
-                              suffixText: 'ETB',
+                              suffixText: '₪',
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -1092,83 +865,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: _maxFreeRideEtbCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             decoration: const InputDecoration(
                               labelText: 'الحد الأقصى للرحلة المجانية',
-                              suffixText: 'ETB',
+                              suffixText: '₪',
                             ),
                           ),
                         ],
                       );
               }),
-            ),
-            const SizedBox(height: 16),
-
-            // ── Fleet Owner Subscription Plans ──────────────────────────────────────────
-            _SectionCard(
-              title: 'خطط اشتراك مالك الأسطول',
-              icon: Icons.directions_bus,
-              color: Colors.teal.shade700,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_fleetPlansLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_fleetPlans.isEmpty)
-                    const Text(
-                      'لا توجد خطط نشطة حالياً',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    )
-                  else
-                    ..._fleetPlans.map((plan) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      plan['name'] ?? '',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      '${plan['max_vehicles']} مركبة  ·  '
-                                      '${plan['monthly_fee_etb']} ETB/شهر',
-                                      style: const TextStyle(
-                                          color: AppColors.textSecondary,
-                                          fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Switch(
-                                value: plan['is_active'] as bool? ?? true,
-                                activeColor: Colors.teal,
-                                onChanged: (v) =>
-                                    _toggleFleetPlanActive(plan, v),
-                              ),
-                            ],
-                          ),
-                        )),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: _showAddFleetPlanDialog,
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('إضافة خطة جديدة'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade700,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 16),
 
@@ -1193,8 +899,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       decoration: BoxDecoration(
                         color: Colors.indigo.shade50,
                         borderRadius: BorderRadius.circular(8),
-                        border:
-                            Border.all(color: Colors.indigo.shade200),
+                        border: Border.all(color: Colors.indigo.shade200),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1207,8 +912,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               Text(
                                 _activeDoc!['doc_type'] ?? '',
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14),
+                                    fontWeight: FontWeight.w700, fontSize: 14),
                               ),
                               const SizedBox(width: 8),
                               Container(
@@ -1216,8 +920,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.indigo.shade100,
-                                  borderRadius:
-                                      BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   'v${_activeDoc!['version'] ?? ''}',
@@ -1233,15 +936,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           Text(
                             'تاريخ الإنشاء: ${_activeDoc!['created_at'] != null ? DateTime.tryParse(_activeDoc!['created_at'].toString())?.toLocal().toString().split('.').first ?? _activeDoc!['created_at'] : '—'}',
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary),
+                                fontSize: 12, color: AppColors.textSecondary),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'عدد المستخدمين الذين قبلوا الوثيقة: $_docAcceptanceCount',
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary),
+                                fontSize: 12, color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -1314,20 +1015,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
     );
   }
-
-  Widget _buildSubPriceField(
-      TextEditingController ctrl, String label) {
-    return TextFormField(
-      controller: ctrl,
-      keyboardType:
-          const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        suffixText: 'ETB',
-      ),
-      validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
-    );
-  }
 }
 
 // ── Reusable Section Card ──────────────────────────────────────────────────────
@@ -1358,10 +1045,9 @@ class _SectionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style:
-                      Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ],
             ),

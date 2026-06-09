@@ -12,16 +12,15 @@ final _adminSvcProvider = Provider<SupabaseAdminService>((ref) {
 });
 
 // ── Revenue by month ──────────────────────────────────────────────────────────
-final monthlyRevenueProvider =
-    FutureProvider<Map<String, double>>((ref) async {
+final monthlyRevenueProvider = FutureProvider<Map<String, double>>((ref) async {
   final data = await ref.watch(_adminSvcProvider).getMonthlyRevenue();
   final Map<String, double> monthly = {};
   for (final row in data) {
     final date = DateTime.tryParse(row['created_at'] as String? ?? '');
     if (date == null) continue;
     final key = DateFormat('MMM').format(date);
-    monthly[key] = (monthly[key] ?? 0) +
-        (row['fare_amount'] as num? ?? 0).toDouble();
+    monthly[key] =
+        (monthly[key] ?? 0) + (row['fare_amount'] as num? ?? 0).toDouble();
   }
   return monthly;
 });
@@ -38,21 +37,8 @@ final ridesByVehicleTypeProvider =
   return counts;
 });
 
-// ── Subscription breakdown by plan ───────────────────────────────────────────
-final subscriptionBreakdownProvider =
-    FutureProvider<Map<String, int>>((ref) async {
-  final data = await ref.watch(_adminSvcProvider).getSubscriptionRevenue();
-  final Map<String, int> counts = {};
-  for (final row in data) {
-    final plan = row['plan_type'] as String? ?? 'other';
-    counts[plan] = (counts[plan] ?? 0) + 1;
-  }
-  return counts;
-});
-
 // ── Active drivers per day (last 30 days) ────────────────────────────────────
-final driverActivityProvider =
-    FutureProvider<Map<String, int>>((ref) async {
+final driverActivityProvider = FutureProvider<Map<String, int>>((ref) async {
   final supabase = ref.watch(supabaseClientProvider);
   try {
     final since =
@@ -65,8 +51,7 @@ final driverActivityProvider =
 
     final Map<String, Set<String>> byDay = {};
     for (final row in (data as List)) {
-      final dt =
-          DateTime.tryParse(row['updated_at'] as String? ?? '');
+      final dt = DateTime.tryParse(row['updated_at'] as String? ?? '');
       if (dt == null) continue;
       final key = DateFormat('MM/dd').format(dt);
       byDay[key] ??= {};
@@ -107,9 +92,8 @@ class ReportsPage extends ConsumerWidget {
           // 2x2 grid of report cards
           LayoutBuilder(builder: (context, constraints) {
             final isWide = constraints.maxWidth > 800;
-            final cardWidth = isWide
-                ? (constraints.maxWidth - 16) / 2
-                : constraints.maxWidth;
+            final cardWidth =
+                isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
 
             return Wrap(
               spacing: 16,
@@ -129,11 +113,6 @@ class ReportsPage extends ConsumerWidget {
                 SizedBox(
                   width: cardWidth,
                   child: _DriverActivityCard(ref: ref),
-                ),
-                // Card 4: Subscription Breakdown
-                SizedBox(
-                  width: cardWidth,
-                  child: _SubscriptionBreakdownCard(ref: ref),
                 ),
               ],
             );
@@ -160,7 +139,7 @@ class _RevenueReportCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CardHeader(
-              title: 'إيرادات الاشتراكات',
+              title: 'إيرادات الرحلات',
               icon: Icons.attach_money,
               color: AppColors.success,
               onExport: () => _exportCsv(context, 'revenue'),
@@ -169,8 +148,7 @@ class _RevenueReportCard extends StatelessWidget {
             SizedBox(
               height: 220,
               child: revenueAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(
                   child: Text('تعذر تحميل البيانات',
                       style: TextStyle(color: Colors.grey.shade500)),
@@ -229,8 +207,7 @@ class _RevenueReportCard extends StatelessWidget {
                                   ? '${(value / 1000).toStringAsFixed(0)}k'
                                   : value.toStringAsFixed(0),
                               style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textSecondary),
+                                  fontSize: 10, color: AppColors.textSecondary),
                             ),
                           ),
                         ),
@@ -300,23 +277,21 @@ class _RidesStatisticsCard extends StatelessWidget {
               title: 'إحصائيات الرحلات',
               icon: Icons.directions_car,
               color: AppColors.primary,
-              onExport: () => ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('جارٍ تصدير CSV...'))),
+              onExport: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('جارٍ تصدير CSV...'))),
             ),
             const SizedBox(height: 16),
             SizedBox(
               height: 220,
               child: ridesAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(
-                    child: Text('تعذر تحميل البيانات')),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (_, __) =>
+                    const Center(child: Text('تعذر تحميل البيانات')),
                 data: (data) {
                   if (data.isEmpty) {
                     return const Center(child: Text('لا توجد بيانات'));
                   }
-                  final total =
-                      data.values.fold(0, (a, b) => a + b);
+                  final total = data.values.fold(0, (a, b) => a + b);
                   final entries = data.entries.toList();
 
                   return Row(
@@ -327,8 +302,8 @@ class _RidesStatisticsCard extends StatelessWidget {
                           PieChartData(
                             sections: List.generate(entries.length, (i) {
                               final e = entries[i];
-                              final color = _typeColors[e.key] ??
-                                  AppColors.textSecondary;
+                              final color =
+                                  _typeColors[e.key] ?? AppColors.textSecondary;
                               final pct =
                                   total > 0 ? e.value / total * 100 : 0.0;
                               return PieChartSectionData(
@@ -356,8 +331,7 @@ class _RidesStatisticsCard extends StatelessWidget {
                           children: entries.map((e) {
                             final color =
                                 _typeColors[e.key] ?? AppColors.textSecondary;
-                            final label =
-                                _typeLabels[e.key] ?? e.key;
+                            final label = _typeLabels[e.key] ?? e.key;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: Row(
@@ -417,17 +391,16 @@ class _DriverActivityCard extends StatelessWidget {
               title: 'نشاط السائقين',
               icon: Icons.people,
               color: AppColors.info,
-              onExport: () => ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('جارٍ تصدير CSV...'))),
+              onExport: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('جارٍ تصدير CSV...'))),
             ),
             const SizedBox(height: 16),
             SizedBox(
               height: 220,
               child: activityAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(
-                    child: Text('تعذر تحميل البيانات')),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (_, __) =>
+                    const Center(child: Text('تعذر تحميل البيانات')),
                 data: (data) {
                   if (data.isEmpty) {
                     return const Center(
@@ -484,8 +457,7 @@ class _DriverActivityCard extends StatelessWidget {
                             getTitlesWidget: (value, meta) => Text(
                               value.toInt().toString(),
                               style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textSecondary),
+                                  fontSize: 10, color: AppColors.textSecondary),
                             ),
                           ),
                         ),
@@ -507,136 +479,6 @@ class _DriverActivityCard extends StatelessWidget {
                       minY: 0,
                       maxY: maxY * 1.2,
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Card 4: Subscription Breakdown (PieChart by plan) ─────────────────────────
-class _SubscriptionBreakdownCard extends StatelessWidget {
-  final WidgetRef ref;
-  const _SubscriptionBreakdownCard({required this.ref});
-
-  static const _planColors = {
-    'daily': AppColors.tertiary,
-    'weekly': AppColors.primary,
-    'monthly': AppColors.secondary,
-    'other': AppColors.textSecondary,
-  };
-
-  static const _planLabels = {
-    'daily': 'يومي',
-    'weekly': 'أسبوعي',
-    'monthly': 'شهري',
-    'other': 'أخرى',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final subsAsync = ref.watch(subscriptionBreakdownProvider);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _CardHeader(
-              title: 'توزيع الاشتراكات',
-              icon: Icons.card_membership,
-              color: AppColors.secondary,
-              onExport: () => ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('جارٍ تصدير CSV...'))),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 220,
-              child: subsAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(
-                    child: Text('تعذر تحميل البيانات')),
-                data: (data) {
-                  if (data.isEmpty) {
-                    return const Center(child: Text('لا توجد بيانات'));
-                  }
-                  final total =
-                      data.values.fold(0, (a, b) => a + b);
-                  final entries = data.entries.toList();
-
-                  return Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: PieChart(
-                          PieChartData(
-                            sections: List.generate(entries.length, (i) {
-                              final e = entries[i];
-                              final color = _planColors[e.key] ??
-                                  AppColors.textSecondary;
-                              final pct =
-                                  total > 0 ? e.value / total * 100 : 0.0;
-                              return PieChartSectionData(
-                                value: e.value.toDouble(),
-                                color: color,
-                                title: '${pct.toStringAsFixed(0)}%',
-                                titleStyle: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                                radius: 70,
-                              );
-                            }),
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 30,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: entries.map((e) {
-                            final color =
-                                _planColors[e.key] ?? AppColors.textSecondary;
-                            final label = _planLabels[e.key] ?? e.key;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: color,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(label,
-                                      style: const TextStyle(fontSize: 11)),
-                                  const Spacer(),
-                                  Text(
-                                    '${e.value}',
-                                    style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
                   );
                 },
               ),
@@ -680,8 +522,7 @@ class _CardHeader extends StatelessWidget {
           icon: const Icon(Icons.download, size: 14),
           label: const Text('تصدير CSV', style: TextStyle(fontSize: 12)),
           style: OutlinedButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),

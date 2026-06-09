@@ -47,8 +47,7 @@ class DriverDetailPage extends ConsumerWidget {
             Text('خطأ في تحميل بيانات السائق: $e'),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () =>
-                  ref.refresh(_driverDetailProvider(driverId)),
+              onPressed: () => ref.refresh(_driverDetailProvider(driverId)),
               child: const Text('إعادة المحاولة'),
             ),
           ],
@@ -109,17 +108,11 @@ class _DriverDetailView extends StatelessWidget {
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                          flex: 2,
-                          child: _ProfileCard(driver: driver)),
+                      Expanded(flex: 2, child: _ProfileCard(driver: driver)),
                       const SizedBox(width: 16),
-                      Expanded(
-                          flex: 2,
-                          child: _VehicleCard(driver: driver)),
+                      Expanded(flex: 2, child: _VehicleCard(driver: driver)),
                       const SizedBox(width: 16),
-                      Expanded(
-                          flex: 1,
-                          child: _StatsCard(driver: driver)),
+                      Expanded(flex: 1, child: _StatsCard(driver: driver)),
                     ],
                   )
                 : Column(
@@ -188,8 +181,7 @@ class _ProfileCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _statusColor(driver['status'] as String? ?? ''),
                         shape: BoxShape.circle,
-                        border:
-                            Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                       width: 20,
                       height: 20,
@@ -217,9 +209,13 @@ class _ProfileCard extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 12),
             _InfoRow(
-                icon: Icons.phone, label: 'الهاتف', value: driver['phone_number'] as String? ?? '—'),
+                icon: Icons.phone,
+                label: 'الهاتف',
+                value: driver['phone_number'] as String? ?? '—'),
             _InfoRow(
-                icon: Icons.badge, label: 'رقم الهوية', value: driver['national_id_number'] as String? ?? '—'),
+                icon: Icons.badge,
+                label: 'رقم الهوية',
+                value: driver['national_id_number'] as String? ?? '—'),
             _InfoRow(
                 icon: Icons.card_membership,
                 label: 'رقم الرخصة',
@@ -228,8 +224,8 @@ class _ProfileCard extends StatelessWidget {
               _InfoRow(
                 icon: Icons.calendar_today,
                 label: 'تاريخ التسجيل',
-                value: DateFormat('yyyy/MM/dd').format(
-                    DateTime.parse(driver['created_at'])),
+                value: DateFormat('yyyy/MM/dd')
+                    .format(DateTime.parse(driver['created_at'])),
               ),
           ],
         ),
@@ -268,14 +264,13 @@ class _InfoRow extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             '$label: ',
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 13),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ),
         ],
@@ -291,9 +286,8 @@ class _VehicleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vehicles = driver['driver_vehicles'] as List? ?? [];
-    final vehicle = vehicles.isNotEmpty
-        ? vehicles.first as Map<String, dynamic>
-        : null;
+    final vehicle =
+        vehicles.isNotEmpty ? vehicles.first as Map<String, dynamic> : null;
 
     return Card(
       child: Padding(
@@ -321,7 +315,8 @@ class _VehicleCard extends StatelessWidget {
               _InfoRow(
                   icon: Icons.directions_car,
                   label: 'نوع المركبة',
-                  value: _vehicleLabel(vehicle['vehicle_type'] as String? ?? '')),
+                  value:
+                      _vehicleLabel(vehicle['vehicle_type'] as String? ?? '')),
               _InfoRow(
                   icon: Icons.abc,
                   label: 'رقم اللوحة',
@@ -333,14 +328,12 @@ class _VehicleCard extends StatelessWidget {
               _InfoRow(
                   icon: Icons.calendar_today,
                   label: 'سنة الصنع',
-                  value: vehicle['year'] != null
-                      ? '${vehicle['year']}'
-                      : '—'),
+                  value: vehicle['year'] != null ? '${vehicle['year']}' : '—'),
               _InfoRow(
                   icon: Icons.branding_watermark,
                   label: 'الماركة / الموديل',
-                  value:
-                      '${vehicle['make'] ?? ''} ${vehicle['model'] ?? ''}'.trim()),
+                  value: '${vehicle['make'] ?? ''} ${vehicle['model'] ?? ''}'
+                      .trim()),
             ],
           ],
         ),
@@ -513,9 +506,10 @@ class _DocumentCard extends StatelessWidget {
                       ? Image.network(
                           url,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.image_not_supported,
-                                  size: 48, color: Colors.grey),
+                          errorBuilder: (_, __, ___) => const Icon(
+                              Icons.image_not_supported,
+                              size: 48,
+                              color: Colors.grey),
                         )
                       : const Icon(Icons.description,
                           size: 48, color: Colors.grey),
@@ -546,7 +540,8 @@ class _DocumentCard extends StatelessWidget {
                               side: const BorderSide(color: AppColors.error),
                               padding: EdgeInsets.zero,
                             ),
-                            child: const Text('رفض', style: TextStyle(fontSize: 11)),
+                            child: const Text('رفض',
+                                style: TextStyle(fontSize: 11)),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -557,7 +552,8 @@ class _DocumentCard extends StatelessWidget {
                               backgroundColor: AppColors.success,
                               padding: EdgeInsets.zero,
                             ),
-                            child: const Text('قبول', style: TextStyle(fontSize: 11)),
+                            child: const Text('قبول',
+                                style: TextStyle(fontSize: 11)),
                           ),
                         ),
                       ],
@@ -606,11 +602,11 @@ class _DocumentCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('تأكيد'),
-        content: Text('قبول الوثيقة: ${_docTypeLabel(doc['document_type'] as String? ?? '')}؟'),
+        content: Text(
+            'قبول الوثيقة: ${_docTypeLabel(doc['document_type'] as String? ?? '')}؟'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('إلغاء')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -645,11 +641,9 @@ class _DocumentCard extends StatelessWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('إلغاء')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () async {
               Navigator.pop(ctx);
               await service.approveDriverDocument(doc['id'] as String, false,
@@ -688,7 +682,7 @@ class _RideHistoryCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ridesAsync = ref.watch(_driverRidesProvider(driverId));
-    final currency = NumberFormat.currency(locale: 'am_ET', symbol: '');
+    final currency = NumberFormat.currency(locale: 'he_IL', symbol: '₪ ');
     final dateFormat = DateFormat('yyyy/MM/dd HH:mm');
 
     return Card(
@@ -707,10 +701,8 @@ class _RideHistoryCard extends ConsumerWidget {
           SizedBox(
             height: 320,
             child: ridesAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (_, __) =>
-                  const Center(child: Text('تعذر التحميل')),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const Center(child: Text('تعذر التحميل')),
               data: (rides) => rides.isEmpty
                   ? const Center(child: Text('لا توجد رحلات'))
                   : DataTable2(
@@ -726,34 +718,31 @@ class _RideHistoryCard extends ConsumerWidget {
                         AppColors.primary.withOpacity(0.04),
                       ),
                       columns: const [
+                        DataColumn2(label: Text('الراكب'), size: ColumnSize.M),
                         DataColumn2(
-                            label: Text('الراكب'), size: ColumnSize.M),
+                            label: Text('نوع المركبة'), size: ColumnSize.M),
                         DataColumn2(
-                            label: Text('نوع المركبة'),
-                            size: ColumnSize.M),
-                        DataColumn2(
-                            label: Text('السعر'), size: ColumnSize.S, numeric: true),
-                        DataColumn2(
-                            label: Text('التاريخ'), size: ColumnSize.M),
-                        DataColumn2(
-                            label: Text('الحالة'), size: ColumnSize.S),
+                            label: Text('السعر'),
+                            size: ColumnSize.S,
+                            numeric: true),
+                        DataColumn2(label: Text('التاريخ'), size: ColumnSize.M),
+                        DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
                       ],
                       rows: rides.map((ride) {
-                        final passenger =
-                            ride['passenger'] as Map? ?? {};
+                        final passenger = ride['passenger'] as Map? ?? {};
                         return DataRow2(
                           cells: [
-                            DataCell(Text(
-                                passenger['full_name'] as String? ?? '—')),
-                            DataCell(Text(
-                                _vehicleLabel(ride['vehicle_type'] as String? ?? ''))),
+                            DataCell(
+                                Text(passenger['full_name'] as String? ?? '—')),
+                            DataCell(Text(_vehicleLabel(
+                                ride['vehicle_type'] as String? ?? ''))),
                             DataCell(Text(
                               currency.format(ride['fare_amount'] ?? 0),
                               textAlign: TextAlign.end,
                             )),
                             DataCell(Text(ride['created_at'] != null
-                                ? dateFormat.format(
-                                    DateTime.parse(ride['created_at']))
+                                ? dateFormat
+                                    .format(DateTime.parse(ride['created_at']))
                                 : '—')),
                             DataCell(StatusBadge(
                                 status: ride['status'] as String? ?? '')),
@@ -814,24 +803,21 @@ class _ActionButtonsBar extends StatelessWidget {
             onPressed: () => _approve(context, service),
             icon: const Icon(Icons.check_circle_outline, size: 18),
             label: const Text('قبول'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
           ),
         ] else if (status == 'active') ...[
           ElevatedButton.icon(
             onPressed: () => _suspend(context, service),
             icon: const Icon(Icons.block, size: 18),
             label: const Text('إيقاف'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.warning),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
           ),
         ] else if (status == 'suspended') ...[
           ElevatedButton.icon(
             onPressed: () => _activate(context, service),
             icon: const Icon(Icons.check_circle_outline, size: 18),
             label: const Text('تفعيل'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
           ),
         ] else if (status == 'rejected') ...[
           ElevatedButton.icon(
@@ -889,8 +875,7 @@ class _ActionButtonsBar extends StatelessWidget {
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('إلغاء')),
           ElevatedButton(
-            style:
-                ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('رفض'),
           ),
@@ -927,8 +912,7 @@ class _ActionButtonsBar extends StatelessWidget {
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('إلغاء')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.warning),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('إيقاف'),
           ),
