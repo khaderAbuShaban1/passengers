@@ -71,11 +71,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final client = SupabaseService.instance.client;
 
     try {
-      final response = await client.auth.verifyOTP(
-        email: _email,
-        token: otp,
-        type: supabase.OtpType.email,
-      );
+      final response = await _verifyEmailOtp(client, otp);
       final user = response.user ?? client.auth.currentUser;
       if (user == null) {
         throw const supabase.AuthException('Invalid verification code');
@@ -120,6 +116,25 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (mounted) setState(() => _errorMessage = e.message);
     } catch (e) {
       if (mounted) setState(() => _errorMessage = e.toString());
+    }
+  }
+
+  Future<supabase.AuthResponse> _verifyEmailOtp(
+    supabase.SupabaseClient client,
+    String otp,
+  ) async {
+    try {
+      return await client.auth.verifyOTP(
+        email: _email,
+        token: otp,
+        type: supabase.OtpType.email,
+      );
+    } on supabase.AuthException {
+      return client.auth.verifyOTP(
+        email: _email,
+        token: otp,
+        type: supabase.OtpType.signup,
+      );
     }
   }
 
