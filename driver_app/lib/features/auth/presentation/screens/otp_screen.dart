@@ -111,13 +111,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   Future<void> _ensureDriverRecords(supabase.User user, String email) async {
     final client = supabase.Supabase.instance.client;
-    await client.from('profiles').upsert({
-      'id': user.id,
+    await client.from('profiles').update({
       'phone': email,
       'phone_number': email,
       'role': 'driver',
       'is_active': true,
-    }, onConflict: 'id');
+    }).eq('id', user.id);
 
     await client.from('drivers').upsert({
       'id': user.id,

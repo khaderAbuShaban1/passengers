@@ -77,13 +77,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         throw const supabase.AuthException('Invalid verification code');
       }
 
-      await client.from('profiles').upsert({
-        'id': user.id,
+      await client.from('profiles').update({
         'phone': _email,
         'phone_number': _email,
         'role': 'passenger',
         'is_active': true,
-      }, onConflict: 'id');
+      }).eq('id', user.id);
 
       if (mounted) context.go(AppRoutes.home);
     } on supabase.AuthException catch (e) {
