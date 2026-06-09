@@ -40,17 +40,24 @@ class RideModel extends RideEntity {
       pickupLat: (json['pickup_lat'] as num).toDouble(),
       pickupLng: (json['pickup_lng'] as num).toDouble(),
       pickupAddress: json['pickup_address'] as String? ?? '',
-      destinationLat: (json['destination_lat'] as num).toDouble(),
-      destinationLng: (json['destination_lng'] as num).toDouble(),
-      destinationAddress: json['destination_address'] as String? ?? '',
-      status: json['status'] as String? ?? 'pending',
-      offeredPrice: (json['offered_price'] as num?)?.toDouble(),
-      finalPrice: (json['final_price'] as num?)?.toDouble(),
+      destinationLat:
+          ((json['dropoff_lat'] ?? json['destination_lat']) as num).toDouble(),
+      destinationLng:
+          ((json['dropoff_lng'] ?? json['destination_lng']) as num).toDouble(),
+      destinationAddress:
+          (json['dropoff_address'] ?? json['destination_address']) as String? ??
+              '',
+      status: json['status'] as String? ?? 'requested',
+      offeredPrice: ((json['estimated_price'] ?? json['offered_price']) as num?)
+          ?.toDouble(),
+      finalPrice:
+          ((json['final_price'] ?? json['fare_amount']) as num?)?.toDouble(),
       paymentMethod: json['payment_method'] as String?,
       isPaid: json['is_paid'] as bool? ?? false,
       distanceKm: (json['distance_km'] as num?)?.toInt(),
       durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
-      cancelReason: json['cancel_reason'] as String?,
+      cancelReason:
+          (json['cancellation_reason'] ?? json['cancel_reason']) as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       acceptedAt: json['accepted_at'] != null
           ? DateTime.tryParse(json['accepted_at'] as String)
@@ -76,9 +83,9 @@ class RideModel extends RideEntity {
       'pickup_lat': pickupLat,
       'pickup_lng': pickupLng,
       'pickup_address': pickupAddress,
-      'destination_lat': destinationLat,
-      'destination_lng': destinationLng,
-      'destination_address': destinationAddress,
+      'dropoff_lat': destinationLat,
+      'dropoff_lng': destinationLng,
+      'dropoff_address': destinationAddress,
       'status': status,
       'payment_method': paymentMethod,
     };

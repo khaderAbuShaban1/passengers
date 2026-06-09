@@ -32,7 +32,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     Widget button;
 
     switch (variant) {
@@ -42,7 +41,8 @@ class CustomButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
-            minimumSize: Size(isFullWidth ? double.infinity : (width ?? 120), height),
+            minimumSize:
+                Size(isFullWidth ? double.infinity : (width ?? 120), height),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),
@@ -56,7 +56,8 @@ class CustomButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
             foregroundColor: Colors.white,
-            minimumSize: Size(isFullWidth ? double.infinity : (width ?? 120), height),
+            minimumSize:
+                Size(isFullWidth ? double.infinity : (width ?? 120), height),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),
@@ -70,7 +71,8 @@ class CustomButton extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary, width: 1.5),
-            minimumSize: Size(isFullWidth ? double.infinity : (width ?? 120), height),
+            minimumSize:
+                Size(isFullWidth ? double.infinity : (width ?? 120), height),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),
@@ -83,7 +85,8 @@ class CustomButton extends StatelessWidget {
           onPressed: isLoading ? null : onPressed,
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primary,
-            minimumSize: Size(isFullWidth ? double.infinity : (width ?? 80), height),
+            minimumSize:
+                Size(isFullWidth ? double.infinity : (width ?? 80), height),
           ),
           child: _buildChild(context, AppColors.primary),
         );
@@ -94,7 +97,8 @@ class CustomButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.error,
             foregroundColor: Colors.white,
-            minimumSize: Size(isFullWidth ? double.infinity : (width ?? 120), height),
+            minimumSize:
+                Size(isFullWidth ? double.infinity : (width ?? 120), height),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),

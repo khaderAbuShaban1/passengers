@@ -83,7 +83,7 @@ class SubscriptionCard extends StatelessWidget {
       case 'monthly':
         return Icons.calendar_month_rounded;
       default:
-        return Icons.subscription_rounded;
+        return Icons.card_membership_rounded;
     }
   }
 
@@ -98,9 +98,7 @@ class SubscriptionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor
-              : theme.colorScheme.surface,
+          color: isSelected ? AppTheme.primaryColor : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
@@ -152,7 +150,9 @@ class SubscriptionCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                          color: isSelected
+                              ? Colors.white
+                              : theme.colorScheme.onSurface,
                         ),
                       ),
                       if (saving != null) ...[

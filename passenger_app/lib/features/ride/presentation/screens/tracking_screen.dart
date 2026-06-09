@@ -28,10 +28,15 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     zoom: 14,
   );
 
+  bool get _hasMapsApiKey =>
+      AppConstants.googleMapsApiKey.isNotEmpty &&
+      AppConstants.googleMapsApiKey != 'YOUR_GOOGLE_MAPS_API_KEY';
+
   void _updateMapFromRide(RideEntity ride) {
+    if (!_hasMapsApiKey) return;
+
     final pickupLatLng = LatLng(ride.pickupLat, ride.pickupLng);
-    final destLatLng =
-        LatLng(ride.destinationLat, ride.destinationLng);
+    final destLatLng = LatLng(ride.destinationLat, ride.destinationLng);
 
     setState(() {
       _markers
@@ -47,8 +52,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
           Marker(
             markerId: const MarkerId('destination'),
             position: destLatLng,
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueRed),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
             infoWindow: InfoWindow(title: ride.destinationAddress),
           ),
         ]);
@@ -146,15 +151,34 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            onMapCreated: (c) => _mapController = c,
-            initialCameraPosition: _initialPosition,
-            markers: _markers,
-            polylines: _polylines,
-            zoomControlsEnabled: false,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-          ),
+          if (_hasMapsApiKey)
+            GoogleMap(
+              onMapCreated: (c) => _mapController = c,
+              initialCameraPosition: _initialPosition,
+              markers: _markers,
+              polylines: _polylines,
+              zoomControlsEnabled: false,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+            )
+          else
+            Container(
+              color: AppColors.surfaceVariant,
+              alignment: Alignment.center,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Google Maps API key is not configured',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
 
           // Bottom tracking panel
           DraggableScrollableSheet(
@@ -165,8 +189,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black12,
@@ -176,8 +199,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                   ],
                 ),
                 child: rideAsync.when(
-                  loading: () => const Center(
-                      child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Center(child: Text('خطأ: $e')),
                   data: (ride) => ListView(
                     controller: scrollController,
@@ -257,8 +280,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                         children: [
                           CircleAvatar(
                             radius: 28,
-                            backgroundColor:
-                                AppColors.primary.withOpacity(0.1),
+                            backgroundColor: AppColors.primary.withOpacity(0.1),
                             child: const Icon(Icons.person,
                                 color: AppColors.primary, size: 30),
                           ),
@@ -274,8 +296,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                 Row(
                                   children: [
                                     const Icon(Icons.star,
-                                        size: 14,
-                                        color: AppColors.tertiary),
+                                        size: 14, color: AppColors.tertiary),
                                     const SizedBox(width: 4),
                                     const Text('4.8'),
                                     const SizedBox(width: 8),
@@ -395,8 +416,7 @@ class _RouteInfoTile extends StatelessWidget {
           ),
           Row(
             children: [
-              const Icon(Icons.location_on,
-                  color: AppColors.error, size: 18),
+              const Icon(Icons.location_on, color: AppColors.error, size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

@@ -167,8 +167,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('تسجيل الخروج'),
           ),
         ],
@@ -195,9 +194,7 @@ class ProfileScreen extends ConsumerWidget {
               groupValue: selectedLang,
               onChanged: (val) {
                 if (val != null) {
-                  ref
-                      .read(selectedLanguageProvider.notifier)
-                      .state = val;
+                  ref.read(selectedLanguageProvider.notifier).state = val;
                   Navigator.pop(ctx);
                 }
               },
@@ -216,7 +213,6 @@ class _PointsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final etbEquivalent =
         (points * AppConstants.pointsToEtbRate).toStringAsFixed(0);
 

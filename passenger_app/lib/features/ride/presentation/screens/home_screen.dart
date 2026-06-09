@@ -27,10 +27,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     zoom: AppConstants.defaultZoom,
   );
 
+  bool get _hasMapsApiKey =>
+      AppConstants.googleMapsApiKey.isNotEmpty &&
+      AppConstants.googleMapsApiKey != 'YOUR_GOOGLE_MAPS_API_KEY';
+
   @override
   void initState() {
     super.initState();
-    _requestLocationPermission();
+    if (_hasMapsApiKey) {
+      _requestLocationPermission();
+    }
   }
 
   Future<void> _requestLocationPermission() async {
@@ -98,28 +104,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Stack(
         children: [
           // Full screen Google Map
-          GoogleMap(
-            onMapCreated: (controller) => _mapController = controller,
-            initialCameraPosition: _initialPosition,
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-          ),
+          if (_hasMapsApiKey)
+            GoogleMap(
+              onMapCreated: (controller) => _mapController = controller,
+              initialCameraPosition: _initialPosition,
+              markers: _markers,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+            )
+          else
+            Container(
+              color: AppColors.surfaceVariant,
+              alignment: Alignment.center,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Google Maps API key is not configured',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
 
           // Transparent AppBar
           SafeArea(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Logo
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
@@ -162,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             right: 16,
             child: FloatingActionButton(
               heroTag: 'location_fab',
-              onPressed: _centerOnUserLocation,
+              onPressed: _hasMapsApiKey ? _centerOnUserLocation : null,
               mini: true,
               backgroundColor: Colors.white,
               foregroundColor: AppColors.primary,
@@ -179,8 +203,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black12,
@@ -220,8 +243,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.search,
-                                color: AppColors.textHint),
+                            const Icon(Icons.search, color: AppColors.textHint),
                             const SizedBox(width: 12),
                             Text(
                               'إلى أين؟',

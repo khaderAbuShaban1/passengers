@@ -1,4 +1,4 @@
-package com.example.passenger_app
+package com.wedit.driver
 
 import io.flutter.embedding.android.FlutterActivity
 

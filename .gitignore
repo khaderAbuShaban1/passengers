@@ -10,6 +10,7 @@ firebase_options.dart.bak
 **/firebase_options.dart
 
 # Generated and local build output
+.idea/
 .appdata/
 .flutter_tmp/
 .gitconfig_codex

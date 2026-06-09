@@ -12,23 +12,26 @@ final _approvalStatusProvider = StreamProvider<String>((ref) {
   final userId = supabase.auth.currentUser?.id;
   if (userId == null) return Stream.value('unknown');
 
-  // Poll every 30 seconds
-  return Stream.periodic(const Duration(seconds: 30), (_) => userId)
-      .asyncMap(
-        (id) async {
-          try {
-            final data = await supabase
-                .from('drivers')
-                .select('status, rejection_reason')
-                .eq('id', id)
-                .single();
-            return '${data['status']}|${data['rejection_reason'] ?? ''}';
-          } catch (_) {
-            return 'pending|';
-          }
-        },
-      )
-      .startWith('pending|');
+  Future<String> fetchStatus(String id) async {
+    try {
+      final data = await supabase
+          .from('drivers')
+          .select('status, rejection_reason')
+          .eq('id', id)
+          .single();
+      return '${data['status']}|${data['rejection_reason'] ?? ''}';
+    } catch (_) {
+      return 'pending|';
+    }
+  }
+
+  return (() async* {
+    yield 'pending|';
+    yield* Stream.periodic(
+      const Duration(seconds: 30),
+      (_) => userId,
+    ).asyncMap(fetchStatus);
+  })();
 });
 
 class PendingApprovalScreen extends ConsumerStatefulWidget {
@@ -128,7 +131,8 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen>
                       decoration: BoxDecoration(
                         color: statusColor.withOpacity(0.1),
                         shape: BoxShape.circle,
-                        border: Border.all(color: statusColor.withOpacity(0.3), width: 3),
+                        border: Border.all(
+                            color: statusColor.withOpacity(0.3), width: 3),
                       ),
                       child: Center(
                         child: Icon(

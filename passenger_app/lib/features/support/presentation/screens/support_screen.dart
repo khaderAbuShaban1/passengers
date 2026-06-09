@@ -58,7 +58,8 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       if (userId == null) throw Exception('User not authenticated');
 
       await SupabaseService.instance.client.from('complaints').insert({
-        'user_id': userId,
+        'reporter_id': userId,
+        'reported_user_id': null,
         'category': _selectedCategory,
         'description': _descriptionController.text.trim(),
         'ride_id': _rideIdController.text.trim().isEmpty
@@ -236,8 +237,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             const SizedBox(height: 32),
 
             // Past support requests
-            Text('طلبات الدعم السابقة',
-                style: theme.textTheme.titleMedium),
+            Text('طلبات الدعم السابقة', style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             const _PastSupportRequests(),
           ],
@@ -262,8 +262,7 @@ class _PastSupportRequests extends ConsumerWidget {
       future: _fetchComplaints(userId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final complaints = snapshot.data ?? [];
@@ -297,13 +296,12 @@ class _PastSupportRequests extends ConsumerWidget {
     );
   }
 
-  Future<List<Map<String, dynamic>>> _fetchComplaints(
-      String userId) async {
+  Future<List<Map<String, dynamic>>> _fetchComplaints(String userId) async {
     try {
       final data = await SupabaseService.instance.client
           .from('complaints')
           .select()
-          .eq('user_id', userId)
+          .eq('reporter_id', userId)
           .order('created_at', ascending: false)
           .limit(10);
       return List<Map<String, dynamic>>.from(data as List);

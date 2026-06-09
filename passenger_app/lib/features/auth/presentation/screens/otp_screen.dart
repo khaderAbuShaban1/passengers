@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/supabase/supabase_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../providers/auth_provider.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phone;
@@ -22,9 +23,13 @@ class OtpScreen extends ConsumerStatefulWidget {
 class _OtpScreenState extends ConsumerState<OtpScreen> {
   final _pinController = TextEditingController();
   final _focusNode = FocusNode();
-  int _resendCountdown = 60;
   Timer? _timer;
+  int _resendCountdown = 60;
   bool _canResend = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  String get _email => widget.phone;
 
   @override
   void initState() {
@@ -58,33 +63,63 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Future<void> _verifyOtp(String otp) async {
     if (otp.length != 6) return;
 
-    final controller = ref.read(authControllerProvider.notifier);
-    final user = await controller.verifyOtp(
-      phone: widget.phone,
-      token: otp,
-    );
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-    if (!mounted) return;
+    final client = SupabaseService.instance.client;
 
-    if (user != null) {
-      if (!user.isProfileComplete) {
-        context.go(AppRoutes.profileSetup);
-      } else {
-        context.go(AppRoutes.home);
+    try {
+      final response = await client.auth.verifyOTP(
+        email: _email,
+        token: otp,
+        type: supabase.OtpType.email,
+      );
+      final user = response.user ?? client.auth.currentUser;
+      if (user == null) {
+        throw const supabase.AuthException('Invalid verification code');
       }
+
+      await client.from('profiles').upsert({
+        'id': user.id,
+        'phone': _email,
+        'phone_number': _email,
+        'role': 'passenger',
+        'is_active': true,
+      }, onConflict: 'id');
+
+      if (mounted) context.go(AppRoutes.home);
+    } on supabase.AuthException catch (e) {
+      if (mounted) setState(() => _errorMessage = e.message);
+    } catch (e) {
+      if (mounted) setState(() => _errorMessage = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _resendOtp() async {
     if (!_canResend) return;
-    final controller = ref.read(authControllerProvider.notifier);
-    final success = await controller.sendOtp(widget.phone);
-    if (success && mounted) {
-      _startCountdown();
-      _pinController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إرسال رمز جديد')),
+
+    final client = SupabaseService.instance.client;
+
+    try {
+      await client.auth.signInWithOtp(
+        email: _email,
+        shouldCreateUser: true,
+        data: {'role': 'passenger'},
       );
+      if (!mounted) return;
+      _pinController.clear();
+      _startCountdown();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('New OTP sent')),
+      );
+    } on supabase.AuthException catch (e) {
+      if (mounted) setState(() => _errorMessage = e.message);
+    } catch (e) {
+      if (mounted) setState(() => _errorMessage = e.toString());
     }
   }
 
@@ -98,15 +133,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
-    final isLoading = authState is AsyncLoading;
-    final errorMsg = authState is AsyncError ? authState.error.toString() : null;
-
     final defaultTheme = PinTheme(
       width: 52,
       height: 58,
       textStyle: const TextStyle(
-        fontFamily: 'Cairo',
         fontSize: 24,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
@@ -115,30 +145,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         border: Border.all(color: AppColors.textDisabled, width: 1.5),
         borderRadius: BorderRadius.circular(12),
         color: AppColors.surfaceVariant,
-      ),
-    );
-
-    final focusedTheme = defaultTheme.copyWith(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary, width: 2),
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.primary.withOpacity(0.05),
-      ),
-    );
-
-    final submittedTheme = defaultTheme.copyWith(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.secondary, width: 2),
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.secondary.withOpacity(0.05),
-      ),
-    );
-
-    final errorTheme = defaultTheme.copyWith(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.error, width: 2),
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.error.withOpacity(0.05),
       ),
     );
 
@@ -159,8 +165,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-
-              // Icon
               Container(
                 width: 80,
                 height: 80,
@@ -169,48 +173,30 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.message_outlined,
+                  Icons.mark_email_read_outlined,
                   color: AppColors.primary,
                   size: 36,
                 ),
               ),
-
               const SizedBox(height: 24),
-
               const Text(
-                'أدخل رمز التحقق',
+                'Enter verification code',
                 style: TextStyle(
-                  fontFamily: 'Cairo',
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              RichText(
+              Text(
+                'Code sent to $_email',
                 textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                  children: [
-                    const TextSpan(text: 'تم إرسال الرمز إلى '),
-                    TextSpan(
-                      text: widget.phone,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
                 ),
               ),
-
               const SizedBox(height: 40),
-
-              // PIN input
               Directionality(
                 textDirection: TextDirection.ltr,
                 child: Pinput(
@@ -218,93 +204,45 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   controller: _pinController,
                   focusNode: _focusNode,
                   autofocus: true,
+                  enabled: !_isLoading,
                   defaultPinTheme: defaultTheme,
-                  focusedPinTheme: focusedTheme,
-                  submittedPinTheme: submittedTheme,
-                  errorPinTheme: errorTheme,
-                  hapticFeedbackType: HapticFeedbackType.lightImpact,
-                  onCompleted: _verifyOtp,
-                  enabled: !isLoading,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Error
-              if (errorMsg != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline,
-                          color: AppColors.error, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          errorMsg,
-                          style: const TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 13,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              const SizedBox(height: 32),
-
-              // Verify button
-              if (isLoading)
-                const CircularProgressIndicator(color: AppColors.primary)
-              else
-                CustomButton(
-                  label: 'تحقق',
-                  onPressed: () => _verifyOtp(_pinController.text),
-                ),
-
-              const SizedBox(height: 24),
-
-              // Resend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'لم تستلم الرمز؟ ',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
+                  focusedPinTheme: defaultTheme.copyWith(
+                    decoration: defaultTheme.decoration!.copyWith(
+                      border: Border.all(color: AppColors.primary, width: 2),
                     ),
                   ),
-                  _canResend
-                      ? TextButton(
-                          onPressed: _resendOtp,
-                          child: const Text(
-                            'إعادة الإرسال',
-                            style: TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        )
-                      : Text(
-                          'إعادة الإرسال بعد ${_resendCountdown}ث',
-                          style: const TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 14,
-                            color: AppColors.textHint,
-                          ),
-                        ),
-                ],
+                  errorPinTheme: defaultTheme.copyWith(
+                    decoration: defaultTheme.decoration!.copyWith(
+                      border: Border.all(color: AppColors.error, width: 2),
+                    ),
+                  ),
+                  onCompleted: _verifyOtp,
+                ),
               ),
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ],
+              const SizedBox(height: 32),
+              CustomButton(
+                label: 'Verify',
+                onPressed: () => _verifyOtp(_pinController.text),
+                isLoading: _isLoading,
+              ),
+              const SizedBox(height: 24),
+              _canResend
+                  ? TextButton(
+                      onPressed: _resendOtp,
+                      child: const Text('Resend OTP'),
+                    )
+                  : Text(
+                      'Resend after ${_resendCountdown}s',
+                      style: const TextStyle(color: AppColors.textHint),
+                    ),
             ],
           ),
         ),

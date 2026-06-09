@@ -9,7 +9,6 @@ import '../../../../core/supabase/supabase_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -92,7 +91,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       // If referral code provided, apply it (call Supabase RPC)
       if (_referralController.text.isNotEmpty) {
         try {
-          await SupabaseService.instance.client.rpc('apply_referral_code', params: {
+          await SupabaseService.instance.client
+              .rpc('apply_referral_code', params: {
             'p_user_id': currentUser.id,
             'p_referral_code': _referralController.text.trim().toUpperCase(),
           });
@@ -108,7 +108,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState is AsyncLoading || _isUploadingImage;
-    final errorMsg = authState is AsyncError ? authState.error.toString() : null;
+    final errorMsg =
+        authState is AsyncError ? authState.error.toString() : null;
 
     return Scaffold(
       backgroundColor: Colors.white,

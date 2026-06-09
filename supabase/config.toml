@@ -149,8 +149,8 @@ enabled = false
 
 [auth.sessions]
 # Force log out after inactivity period (days)
-timebox = 0
-inactivity_timeout = 0
+timebox = "0"
+inactivity_timeout = "0"
 
 [analytics]
 enabled = false

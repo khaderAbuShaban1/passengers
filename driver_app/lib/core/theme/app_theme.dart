@@ -39,7 +39,7 @@ class AppTheme {
           color: colorScheme.onSurface,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -105,7 +105,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: errorColor),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
       ),
       chipTheme: ChipThemeData(
@@ -157,4 +158,15 @@ class AppTheme {
       ),
     );
   }
+}
+
+class AppColors {
+  AppColors._();
+
+  static const Color primary = AppTheme.primaryColor;
+  static const Color success = AppTheme.secondaryColor;
+  static const Color error = AppTheme.errorColor;
+  static const Color textPrimary = Color(0xFF1F1F1F);
+  static const Color textSecondary = Color(0xFF666666);
+  static const Color surfaceVariant = Color(0xFFF2F2F2);
 }

@@ -26,7 +26,7 @@ class DriverModel extends DriverEntity {
   factory DriverModel.fromJson(Map<String, dynamic> json) {
     return DriverModel(
       id: json['id'] as String,
-      phone: json['phone'] as String? ?? '',
+      phone: json['phone'] as String? ?? json['phone_number'] as String? ?? '',
       name: json['name'] as String?,
       email: json['email'] as String?,
       avatarUrl: json['avatar_url'] as String?,

@@ -21,9 +21,11 @@ class SupabaseService {
   SupabaseQueryBuilder get profilesTable => client.from('profiles');
   SupabaseQueryBuilder get ridesTable => client.from('rides');
   SupabaseQueryBuilder get rideOffersTable => client.from('ride_offers');
-  SupabaseQueryBuilder get driverLocationsTable => client.from('driver_locations');
+  SupabaseQueryBuilder get driverLocationsTable =>
+      client.from('driver_locations');
   SupabaseQueryBuilder get notificationsTable => client.from('notifications');
-  SupabaseQueryBuilder get pointsTransactionsTable => client.from('points_transactions');
+  SupabaseQueryBuilder get pointsTransactionsTable =>
+      client.from('points_transactions');
   SupabaseQueryBuilder get referralsTable => client.from('referrals');
 
   // Realtime channel helpers
@@ -62,10 +64,8 @@ class SupabaseService {
 
   /// Get a user profile by ID
   Future<Map<String, dynamic>?> getProfile(String userId) async {
-    final response = await profilesTable
-        .select()
-        .eq('id', userId)
-        .maybeSingle();
+    final response =
+        await profilesTable.select().eq('id', userId).maybeSingle();
     return response;
   }
 

@@ -9,7 +9,7 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'firebase_options.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 /// Top-level FCM background/terminated message handler.
 /// Must be a top-level function (not a class method).
@@ -30,11 +30,7 @@ final FlutterLocalNotificationsPlugin _localNotifications =
 Future<void> _setupFcm() async {
   // Request permission (iOS / Android 13+).
   final messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  await messaging.requestPermission(alert: true, badge: true, sound: true);
 
   // Print the FCM token so it can be copied during development.
   final token = await messaging.getToken();
@@ -95,7 +91,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
-    anonKey: AppConstants.supabaseAnonKey,
+    publishableKey: AppConstants.supabaseAnonKey,
   );
   try {
     if (firebaseNotConfigured) {

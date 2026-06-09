@@ -73,11 +73,11 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
             'pickup_lat': pickupLat,
             'pickup_lng': pickupLng,
             'pickup_address': pickupAddress,
-            'destination_lat': dropoffLat,
-            'destination_lng': dropoffLng,
-            'destination_address': dropoffAddress,
+            'dropoff_lat': dropoffLat,
+            'dropoff_lng': dropoffLng,
+            'dropoff_address': dropoffAddress,
             'vehicle_type': vehicleType,
-            'status': 'pending',
+            'status': 'requested',
             'created_at': DateTime.now().toIso8601String(),
           })
           .select()
@@ -115,9 +115,13 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
         .subscribe();
 
     // Initial fetch
-    _fetchPendingOffers(rideId).then(controller.add).catchError(controller.addError);
+    _fetchPendingOffers(rideId)
+        .then(controller.add)
+        .catchError(controller.addError);
 
-    return controller.stream.handleError((_) => <RideOfferEntity>[]).asBroadcastStream()
+    return controller.stream
+        .handleError((_) => <RideOfferEntity>[])
+        .asBroadcastStream()
       ..listen(null, onDone: () {
         _supabase.client.removeChannel(channel);
       });
@@ -140,9 +144,7 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
           .eq('status', 'pending')
           .order('offered_price', ascending: true);
 
-      return (data as List)
-          .map((json) => _mapToOfferEntity(json))
-          .toList();
+      return (data as List).map((json) => _mapToOfferEntity(json)).toList();
     } on PostgrestException catch (e) {
       throw ServerException(message: e.message, code: e.code);
     }
@@ -192,17 +194,14 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
 
       // Update offer status
       await _supabase.rideOffersTable
-          .update({'status': 'accepted'})
-          .eq('id', offerId);
+          .update({'status': 'accepted'}).eq('id', offerId);
 
       // Update ride with accepted offer
       final rideData = await _supabase.ridesTable
           .update({
             'status': 'accepted',
-            'accepted_offer_id': offerId,
             'driver_id': driverId,
-            'offered_price': price,
-            'accepted_at': DateTime.now().toIso8601String(),
+            'estimated_price': price,
           })
           .eq('id', rideId)
           .select()
@@ -220,13 +219,12 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
   @override
   Future<void> cancelRide(String rideId, String reason) async {
     try {
-      await _supabase.ridesTable
-          .update({
-            'status': 'cancelled',
-            'cancel_reason': reason,
-            'cancelled_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', rideId);
+      final userId = _supabase.currentUserId;
+      await _supabase.ridesTable.update({
+        'status': 'cancelled',
+        'cancellation_reason': reason,
+        'cancelled_by': userId,
+      }).eq('id', rideId);
     } on PostgrestException catch (e) {
       throw ServerException(message: e.message, code: e.code);
     } catch (e) {
@@ -267,10 +265,7 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
   }
 
   Future<RideModel> _fetchRideById(String rideId) async {
-    final data = await _supabase.ridesTable
-        .select()
-        .eq('id', rideId)
-        .single();
+    final data = await _supabase.ridesTable.select().eq('id', rideId).single();
     return RideModel.fromJson(data);
   }
 
@@ -288,28 +283,22 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
       }
 
       // Get ride to find driver
-      final ride = await _supabase.ridesTable
-          .select()
-          .eq('id', rideId)
-          .single();
+      final ride =
+          await _supabase.ridesTable.select().eq('id', rideId).single();
+      final driverId = ride['driver_id'] as String?;
+      if (driverId == null) {
+        throw const ServerException(message: 'Ride has no assigned driver');
+      }
 
       await _supabase.client.from('ratings').insert({
         'ride_id': rideId,
-        'passenger_id': userId,
-        'driver_id': ride['driver_id'],
+        'rated_by': userId,
+        'rated_user': driverId,
         'score': score,
         'comment': comment,
-        'categories': categories,
+        'categories': categories ?? const <String>[],
         'created_at': DateTime.now().toIso8601String(),
       });
-
-      // Also update the ride's passenger rating
-      await _supabase.ridesTable
-          .update({
-            'passenger_rating': score,
-            'passenger_comment': comment,
-          })
-          .eq('id', rideId);
     } on PostgrestException catch (e) {
       throw ServerException(message: e.message, code: e.code);
     } catch (e) {
@@ -338,7 +327,9 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
     // Initial fetch
     _fetchNearbyDrivers().then(controller.add).catchError(controller.addError);
 
-    return controller.stream.handleError((_) => <DriverLocationEntity>[]).asBroadcastStream()
+    return controller.stream
+        .handleError((_) => <DriverLocationEntity>[])
+        .asBroadcastStream()
       ..listen(null, onDone: () {
         _supabase.client.removeChannel(channel);
       });
@@ -400,7 +391,7 @@ class RideRemoteDatasourceImpl implements RideRemoteDatasource {
         },
       );
       return (result as num).toDouble();
-    } on PostgrestException catch (e) {
+    } on PostgrestException {
       // Fallback to local calculation if RPC doesn't exist
       return _localPriceEstimate(distanceKm, vehicleType);
     } catch (e) {

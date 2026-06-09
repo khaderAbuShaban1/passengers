@@ -57,7 +57,7 @@ class RideEntity extends Equatable {
     this.passengerComment,
   });
 
-  bool get isPending => status == 'pending';
+  bool get isPending => status == 'pending' || status == 'requested';
   bool get isAccepted => status == 'accepted';
   bool get isArriving => status == 'arriving';
   bool get isStarted => status == 'started';
@@ -69,7 +69,10 @@ class RideEntity extends Equatable {
   String get displayStatus {
     switch (status) {
       case 'pending':
+      case 'requested':
         return 'Pending';
+      case 'offered':
+        return 'Offered';
       case 'accepted':
         return 'Accepted';
       case 'arriving':
